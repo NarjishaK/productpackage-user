@@ -82,19 +82,14 @@ const SingleItem = ({ item }: { item: Product }) => {
           </div>
 
           <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
-            <Link
-              href={{
-                pathname: `/shop-details`,
-                query: {
-                  id: item.id,
-                  image: item.image,
-                  packagename: item.packagename,
-                  price: item.price,
-                },
-              }}
-            >
-              {item.packagename}
-            </Link>
+           <Link
+  href={{
+    pathname: `/shop-details/${item._id}`,
+  }}
+>
+  {item.packagename}
+</Link>
+
           </h3>
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">

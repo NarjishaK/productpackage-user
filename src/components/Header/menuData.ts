@@ -91,6 +91,14 @@ export const menuData: Menu[] = [
         newTab: false,
         path: "/mail-success",
       },
+      //shop details page
+      {
+  id: 64,
+  title: "Shop Details",
+  newTab: false,
+  path: "/shop-details/:id",
+}
+
     ],
   },
   {
