@@ -9,6 +9,7 @@ import { addItemToCart } from "@/redux/features/cart-slice";
 import Image from "next/image";
 import Link from "next/link";
 import { addItemToWishlist } from "@/redux/features/wishlist-slice";
+import { BASE_URL } from "@/Helper/handleapi";
 
 const SingleItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
@@ -81,17 +82,34 @@ const SingleItem = ({ item }: { item: Product }) => {
           </div>
 
           <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
-            <Link href="/shop-details"> {item.title} </Link>
+            <Link
+              href={{
+                pathname: `/shop-details`,
+                query: {
+                  id: item.id,
+                  image: item.image,
+                  packagename: item.packagename,
+                  price: item.price,
+                },
+              }}
+            >
+              {item.packagename}
+            </Link>
           </h3>
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">
-            <span className="text-dark">${item.discountedPrice}</span>
+            <span className="text-dark">₹{item.price}</span>
             <span className="text-dark-4 line-through">${item.price}</span>
           </span>
         </div>
 
         <div className="flex justify-center items-center">
-          <Image src={item.imgs.previews[0]} alt="" width={280} height={280} />
+          <img
+            src={`${BASE_URL}/images/${item.image}`}
+            alt=""
+            width={280}
+            height={280}
+          />
         </div>
 
         <div className="absolute right-0 bottom-0 translate-x-full u-w-full flex flex-col gap-2 p-5.5 ease-linear duration-300 group-hover:translate-x-0">

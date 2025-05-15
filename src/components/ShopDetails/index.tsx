@@ -6,12 +6,18 @@ import Newsletter from "../Common/Newsletter";
 import RecentlyViewdItems from "./RecentlyViewd";
 import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
 import { useAppSelector } from "@/redux/store";
+import { BASE_URL } from "@/Helper/handleapi";
+import { useSearchParams } from "next/navigation";
 
 const ShopDetails = () => {
   const [activeColor, setActiveColor] = useState("blue");
   const { openPreviewModal } = usePreviewSlider();
   const [previewImg, setPreviewImg] = useState(0);
+  const searchParams = useSearchParams();
 
+  const packagename = searchParams.get("packagename");
+  const price = searchParams.get("price");
+  const image = searchParams.get("image");
   const [storage, setStorage] = useState("gb128");
   const [type, setType] = useState("active");
   const [sim, setSim] = useState("dual");
@@ -97,7 +103,7 @@ const ShopDetails = () => {
     <>
       <Breadcrumb title={"Shop Details"} pages={["shop details"]} />
 
-      {product.title === "" ? (
+      {product._id === "" ? (
         "Please add product"
       ) : (
         <>
@@ -129,9 +135,9 @@ const ShopDetails = () => {
                         </svg>
                       </button>
 
-                      <Image
-                        src={product.imgs?.previews[previewImg]}
-                        alt="products-details"
+                      <img
+                        src={`${BASE_URL}/images/${image}`}
+                        alt={packagename || "Product image"}
                         width={400}
                         height={400}
                       />
@@ -317,11 +323,9 @@ const ShopDetails = () => {
 
                   <h3 className="font-medium text-custom-1 mb-4.5">
                     <span className="text-sm sm:text-base text-dark">
-                      Price: ${product.price}
+                      Price: ₹{price}
                     </span>
                     <span className="line-through">
-                      {" "}
-                      ${product.discountedPrice}{" "}
                     </span>
                   </h3>
 

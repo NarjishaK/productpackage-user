@@ -2,6 +2,7 @@ import BlogDetails from "@/components/BlogDetails";
 import React from "react";
 
 import { Metadata } from "next";
+import ShopDetails from "@/components/ShopDetails";
 export const metadata: Metadata = {
   title: "Blog Details Page | NextCommerce Nextjs E-commerce template",
   description: "This is Blog Details Page for NextCommerce Template",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 const BlogDetailsPage = () => {
   return (
     <main>
-      <BlogDetails />
+      <ShopDetails />
     </main>
   );
 };
