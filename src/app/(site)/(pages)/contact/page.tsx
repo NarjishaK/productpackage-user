@@ -2,8 +2,9 @@ import Contact from "@/components/Contact";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "Contact Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Contact Page for NextCommerce Template",
+  title: "Deelzon Contact Page | Deelzon Package Booking ",
+  description: " This is Deelzon Contact Page for – Seamless E-commerce Package Booking & Easy Claim Process",
+
   // other metadata
 };
 
