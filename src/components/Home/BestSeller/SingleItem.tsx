@@ -42,9 +42,9 @@ const SingleItem = ({ item }: { item: Product }) => {
 
   return (
     <div className="group">
-      <div className="relative overflow-hidden rounded-lg bg-[#F6F7FB] min-h-[403px]">
+      <div className="relative overflow-hidden rounded-lg bg-[#F6F7FB]">
         <div className="text-center px-4 py-7.5">
-          <div className="flex items-center justify-center gap-2.5 mb-2">
+          {/* <div className="flex items-center justify-center gap-2.5 mb-2">
             <div className="flex items-center gap-1">
               <Image
                 src="/images/icons/icon-star.svg"
@@ -52,59 +52,27 @@ const SingleItem = ({ item }: { item: Product }) => {
                 width={14}
                 height={14}
               />
-              <Image
-                src="/images/icons/icon-star.svg"
-                alt="star icon"
-                width={14}
-                height={14}
-              />
-              <Image
-                src="/images/icons/icon-star.svg"
-                alt="star icon"
-                width={14}
-                height={14}
-              />
-              <Image
-                src="/images/icons/icon-star.svg"
-                alt="star icon"
-                width={14}
-                height={14}
-              />
-              <Image
-                src="/images/icons/icon-star.svg"
-                alt="star icon"
-                width={14}
-                height={14}
-              />
             </div>
-
             <p className="text-custom-sm">({item.reviews})</p>
-          </div>
+          </div> */}
 
           <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
-           <Link
-  href={{
-    pathname: `/shop-details/${item._id}`,
-  }}
->
-  {item.packagename}
-</Link>
-
+            <Link
+              href={{
+                pathname: `/shop-details/${item._id}`,
+              }}
+            >
+              {item.packagename}
+            </Link>
           </h3>
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">
             <span className="text-dark">₹{item.price}</span>
-            <span className="text-dark-4 line-through">${item.price}</span>
           </span>
         </div>
 
         <div className="flex justify-center items-center">
-          <img
-            src={`${BASE_URL}/images/${item.image}`}
-            alt=""
-            width={280}
-            height={280}
-          />
+          <img src={`${BASE_URL}/images/${item.image}`} alt="" />
         </div>
 
         <div className="absolute right-0 bottom-0 translate-x-full u-w-full flex flex-col gap-2 p-5.5 ease-linear duration-300 group-hover:translate-x-0">
