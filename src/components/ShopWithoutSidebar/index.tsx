@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 
 import SingleGridItem from "../Shop/SingleGridItem";
@@ -7,7 +7,7 @@ import SingleListItem from "../Shop/SingleListItem";
 import CustomSelect from "../ShopWithSidebar/CustomSelect";
 
 import shopData from "../Shop/shopData";
-
+import { fetchPackages } from "@/Helper/handleapi";
 const ShopWithoutSidebar = () => {
   const [productStyle, setProductStyle] = useState("grid");
 
@@ -16,7 +16,16 @@ const ShopWithoutSidebar = () => {
     { label: "Best Selling", value: "1" },
     { label: "Old Products", value: "2" },
   ];
-
+const [products, setProducts] =useState([]);
+    useEffect(() => {
+      fetchPackages()
+        .then((data) => {
+          setProducts(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching products:", error);
+        });
+    },[])
   return (
     <>
       <Breadcrumb
@@ -129,7 +138,7 @@ const ShopWithoutSidebar = () => {
                     : "flex flex-col gap-7.5"
                 }`}
               >
-                {shopData.map((item, key) =>
+                {products.map((item, key) =>
                   productStyle === "grid" ? (
                     <SingleGridItem item={item} key={key} />
                   ) : (
