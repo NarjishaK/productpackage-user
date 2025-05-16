@@ -35,7 +35,7 @@ const BestSeller = () => {
               This Month
             </span>
             <h2 className="font-semibold text-xl xl:text-heading-5 text-dark">
-              Best Sellers
+              Best Selling
             </h2>
           </div>
         </div>
