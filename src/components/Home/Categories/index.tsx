@@ -1,6 +1,6 @@
 "use client";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import data from "./categoryData";
 import Image from "next/image";
 
@@ -8,6 +8,7 @@ import Image from "next/image";
 import "swiper/css/navigation";
 import "swiper/css";
 import SingleItem from "./SingleItem";
+import { fetchPackages } from "@/Helper/handleapi";
 
 const Categories = () => {
   const sliderRef = useRef(null);
@@ -27,6 +28,17 @@ const Categories = () => {
       sliderRef.current.swiper.init();
     }
   }, []);
+
+   const [products, setProducts] =useState([]);
+      useEffect(() => {
+        fetchPackages()
+          .then((data) => {
+            setProducts(data);
+          })
+          .catch((error) => {
+            console.error("Error fetching products:", error);
+          });
+      })
 
   return (
     <section className="overflow-hidden pt-17.5">
@@ -134,7 +146,7 @@ const Categories = () => {
               },
             }}
           >
-            {data.map((item, key) => (
+            {products.map((item, key) => (
               <SwiperSlide key={key}>
                 <SingleItem item={item} />
               </SwiperSlide>

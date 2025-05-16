@@ -1,12 +1,13 @@
 import { Category } from "@/types/category";
 import React from "react";
 import Image from "next/image";
+import { BASE_URL } from "@/Helper/handleapi";
 
 const SingleItem = ({ item }: { item: Category }) => {
   return (
     <a href="#" className="group flex flex-col items-center">
       <div className="max-w-[130px] w-full bg-[#F2F3F8] h-32.5 rounded-full flex items-center justify-center mb-4">
-        <Image src={item.img} alt="Category" width={82} height={62} />
+        <img src={`${BASE_URL}/images/${item.image}`} alt="Category" style={{ width: "130px", height: "130px", objectFit: "cover", borderRadius: "50%" }}  />
       </div>
 
       <div className="flex justify-center">
