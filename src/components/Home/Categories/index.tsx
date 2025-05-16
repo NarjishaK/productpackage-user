@@ -38,7 +38,7 @@ const Categories = () => {
           .catch((error) => {
             console.error("Error fetching products:", error);
           });
-      })
+      },[])
 
   return (
     <section className="overflow-hidden pt-17.5">

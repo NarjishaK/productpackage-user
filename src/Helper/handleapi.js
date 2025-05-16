@@ -7,3 +7,9 @@ export const fetchPackages = async () => {
     const response = await axios.get(`${BASE_URL}/subcategory`);
     return response.data;
 }
+
+//fetch all banners
+export const fetchBanners = async () => {
+    const response = await axios.get(`${BASE_URL}/banner`);
+    return response.data;
+}

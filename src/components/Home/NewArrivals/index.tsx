@@ -16,7 +16,7 @@ const NewArrival = () => {
       .catch((error) => {
         console.error("Error fetching products:", error);
       });
-  })
+  },[])
   return (
     <section className="overflow-hidden pt-15">
       <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">

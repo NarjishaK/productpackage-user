@@ -1,110 +1,65 @@
 "use client";
+
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
-
-// Import Swiper styles
-import "swiper/css/pagination";
 import "swiper/css";
-
+import "swiper/css/pagination";
+import { BASE_URL, fetchBanners } from "@/Helper/handleapi";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const HeroCarousal = () => {
+  const [allBanners, setAllBanners] = useState([]);
+
+  useEffect(() => {
+    fetchBanners()
+      .then((data) => {
+        setAllBanners(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching banners:", error);
+      });
+  }, []);
+
   return (
     <Swiper
       spaceBetween={30}
-      centeredSlides={true}
+      centeredSlides
       autoplay={{
-        delay: 2500,
+        delay: 3000,
         disableOnInteraction: false,
       }}
       pagination={{
         clickable: true,
       }}
       modules={[Autoplay, Pagination]}
-      className="hero-carousel"
+      className="w-full max-w-screen-xl mx-auto"
     >
-      <SwiperSlide>
-        <div className="flex items-center pt-6 sm:pt-0 flex-col-reverse sm:flex-row">
-          <div className="max-w-[394px] py-10 sm:py-15 lg:py-24.5 pl-4 sm:pl-7.5 lg:pl-12.5">
-            <div className="flex items-center gap-4 mb-7.5 sm:mb-10">
-              <span className="block font-semibold text-heading-3 sm:text-heading-1 text-blue">
-                30%
-              </span>
-              <span className="block text-dark text-sm sm:text-custom-1 sm:leading-[24px]">
-                Sale
-                <br />
-                Off
-              </span>
+      {allBanners.map((item, index) => (
+        <SwiperSlide key={index}>
+          <div className="flex flex-col-reverse sm:flex-row items-center gap-8 p-6 sm:p-12">
+            {/* Text Content */}
+            <div className="sm:w-1/2 text-center sm:text-left">
+              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-4">
+                {item.title}
+              </h1>
+              <p className="text-gray-600 mb-6">{item.description}</p>
             </div>
 
-            <h1 className="font-semibold text-dark text-xl sm:text-3xl mb-3">
-              <a href="#">True Wireless Noise Cancelling Headphone</a>
-            </h1>
-
-            <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at ipsum at risus euismod lobortis in
-            </p>
-
-            <a
-              href="#"
-              className="inline-flex font-medium text-white text-custom-sm rounded-md bg-dark py-3 px-9 ease-out duration-200 hover:bg-blue mt-10"
-            >
-              Shop Now
-            </a>
-          </div>
-
-          <div>
-            <Image
-              src="/images/hero/hero-01.png"
-              alt="headphone"
-              width={351}
-              height={358}
-            />
-          </div>
-        </div>
-      </SwiperSlide>
-      <SwiperSlide>
-        {" "}
-        <div className="flex items-center pt-6 sm:pt-0 flex-col-reverse sm:flex-row">
-          <div className="max-w-[394px] py-10 sm:py-15 lg:py-26 pl-4 sm:pl-7.5 lg:pl-12.5">
-            <div className="flex items-center gap-4 mb-7.5 sm:mb-10">
-              <span className="block font-semibold text-heading-3 sm:text-heading-1 text-blue">
-                30%
-              </span>
-              <span className="block text-dark text-sm sm:text-custom-1 sm:leading-[24px]">
-                Sale
-                <br />
-                Off
-              </span>
+            {/* Image */}
+            <div className="sm:w-1/2 w-full">
+              <div className="relative w-full h-64 sm:h-96">
+                <img
+                  src={`${BASE_URL}/images/${item.image}`}
+                  alt={item.title}
+                 
+                  className="object-cover rounded-lg"
+                />
+              </div>
             </div>
-
-            <h1 className="font-semibold text-dark text-xl sm:text-3xl mb-3">
-              <a href="#">True Wireless Noise Cancelling Headphone</a>
-            </h1>
-
-            <p>
-              Lorem ipsum dolor sit, consectetur elit nunc suscipit non ipsum
-              nec suscipit.
-            </p>
-
-            <a
-              href="#"
-              className="inline-flex font-medium text-white text-custom-sm rounded-md bg-dark py-3 px-9 ease-out duration-200 hover:bg-blue mt-10"
-            >
-              Shop Now
-            </a>
           </div>
-
-          <div>
-            <Image
-              src="/images/hero/hero-01.png"
-              alt="headphone"
-              width={351}
-              height={358}
-            />
-          </div>
-        </div>
-      </SwiperSlide>
+        </SwiperSlide>
+      ))}
     </Swiper>
   );
 };
