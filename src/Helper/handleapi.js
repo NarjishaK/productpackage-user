@@ -13,3 +13,9 @@ export const fetchBanners = async () => {
     const response = await axios.get(`${BASE_URL}/banner`);
     return response.data;
 }
+
+//fetch logo
+export const fetchLogo = async () => {
+    const response = await axios.get(`${BASE_URL}/logo`);
+    return response.data;
+}

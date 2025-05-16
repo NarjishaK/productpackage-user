@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { selectTotalPrice } from "@/redux/features/cart-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import Image from "next/image";
+import { BASE_URL, fetchLogo } from "@/Helper/handleapi";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,7 +19,17 @@ const Header = () => {
 
   const product = useAppSelector((state) => state.cartReducer.items);
   const totalPrice = useSelector(selectTotalPrice);
+  const [logo, setLogo] = useState([]);
 
+  useEffect(() => {
+    fetchLogo()
+      .then((data) => {
+        setLogo(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching logo:", error);
+      });
+  }, []);
   const handleOpenCartModal = () => {
     openCartModal();
   };
@@ -62,14 +73,15 @@ const Header = () => {
         >
           {/* <!-- header top left --> */}
           <div className="xl:w-auto flex-col sm:flex-row w-full flex sm:justify-between sm:items-center gap-5 sm:gap-10">
-            <Link className="flex-shrink-0" href="/">
-              <Image
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={219}
-                height={36}
-              />
-            </Link>
+            {logo.map((d) => (
+              <Link href="/" key={d._id}>
+                <img
+                  src={`${BASE_URL}/images/${d.image}`}
+                  alt="Logo"
+                  style={{ width: "140px" }}
+                />
+              </Link>
+            ))}
 
             <div className="max-w-[475px] w-full">
               <form>
