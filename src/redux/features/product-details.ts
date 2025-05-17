@@ -5,16 +5,20 @@ type InitialState = {
   value: Product;
 };
 
-const initialState = {
+const initialState: InitialState = {
   value: {
+    _id: "",
+    id: 0,
     title: "",
     reviews: 0,
     price: 0,
     discountedPrice: 0,
-    img: "",
-    images: [],
-    id: 0,
-    imgs: { thumbnails: [], previews: [] },
+    image: "",
+    packagename: "",
+    imgs: {
+      thumbnails: [],
+      previews: [],
+    },
   },
 } as InitialState;
 
