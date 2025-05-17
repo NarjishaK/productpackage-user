@@ -61,7 +61,7 @@ const Signin = () => {
                   Forget your password?
                 </a>
 
-                <span className="relative z-1 block font-medium text-center mt-4.5">
+                {/* <span className="relative z-1 block font-medium text-center mt-4.5">
                   <span className="block absolute -z-1 left-0 top-1/2 h-px w-full bg-gray-3"></span>
                   <span className="inline-block px-3 bg-white">Or</span>
                 </span>
@@ -129,7 +129,7 @@ const Signin = () => {
                     </svg>
                     Sign Up with Github
                   </button>
-                </div>
+                </div> */}
 
                 <p className="text-center mt-6">
                   Don&apos;t have an account?

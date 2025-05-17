@@ -121,7 +121,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5 mb-2">
+          {/* <div className="flex items-center gap-2.5 mb-2">
             <div className="flex items-center gap-1">
               <Image
                 src="/images/icons/icon-star.svg"
@@ -156,7 +156,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
             </div>
 
             <p className="text-custom-sm">({item.reviews})</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

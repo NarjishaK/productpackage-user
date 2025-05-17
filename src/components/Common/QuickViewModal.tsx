@@ -155,7 +155,6 @@ const QuickViewModal = () => {
 
               <div className="flex flex-wrap items-center gap-5 mb-6">
                 <div className="flex items-center gap-1.5">
-                  {/* <!-- stars --> */}
                   <div className="flex items-center gap-1">
                     <svg
                       className="fill-[#FFA645]"
@@ -269,7 +268,7 @@ const QuickViewModal = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <svg
                     width="20"
                     height="20"
@@ -295,10 +294,11 @@ const QuickViewModal = () => {
                   </svg>
 
                   <span className="font-medium text-dark"> In Stock </span>
-                </div>
+                </div> */}
               </div>
 
               <p>
+                <b>{product.packagename}<br/></b>
                 Lorem Ipsum is simply dummy text of the printing and typesetting
                 industry. Lorem Ipsum has.
               </p>
