@@ -1,7 +1,7 @@
 import axios from "axios";
-export const BASE_URL ="http://localhost:3000";
-// export const BASE_URL ="https://api.sstappstore.in";
-
+// export const BASE_URL ="http://localhost:3001";
+export const BASE_URL ="https://api.sstappstore.in";
+// 
 
 //fetch all products
 export const fetchPackages = async () => {
