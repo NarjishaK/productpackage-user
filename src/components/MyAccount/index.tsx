@@ -357,7 +357,7 @@ const MyAccount = () => {
                           fill=""
                         />
                       </svg>
-                      Name: James Septimus
+                      Name: Deelzon
                     </p>
 
                     <p className="flex items-center gap-2.5 text-custom-sm">
@@ -489,7 +489,7 @@ const MyAccount = () => {
                           fill=""
                         />
                       </svg>
-                      Name: James Septimus
+                      Name: Deelzon
                     </p>
 
                     <p className="flex items-center gap-2.5 text-custom-sm">
@@ -508,7 +508,7 @@ const MyAccount = () => {
                           fill=""
                         />
                       </svg>
-                      Email: jamse@example.com
+                      Email: sales@deelzon.com
                     </p>
 
                     <p className="flex items-center gap-2.5 text-custom-sm">
@@ -537,7 +537,7 @@ const MyAccount = () => {
                           fill=""
                         />
                       </svg>
-                      Phone: 1234 567890
+                      Phone: 96455 22822
                     </p>
 
                     <p className="flex gap-2.5 text-custom-sm">
@@ -563,7 +563,7 @@ const MyAccount = () => {
                           </clipPath>
                         </defs>
                       </svg>
-                      Address: 7398 Smoke Ranch RoadLas Vegas, Nevada 89128
+                      Address: Deelzone c/o Elite Company,Vadanapally,Thrissur.
                     </p>
                   </div>
                 </div>
