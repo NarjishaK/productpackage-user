@@ -48,9 +48,9 @@ const Header = () => {
   });
 
   const options = [
-    { label: "All Categories", value: "0" },
-    { label: "Health Check Up", value: "1" },
-    { label: "999 Saving Scheme", value: "2" },
+    { label: "All Location", value: "0" },
+    { label: "Thrissur", value: "1" },
+    { label: "Kozhikode", value: "2" },
     // { label: "Monitor", value: "3" },
     // { label: "Phone", value: "4" },
     // { label: "Watch", value: "5" },
@@ -248,7 +248,7 @@ const Header = () => {
                       cart
                     </span>
                     <p className="font-medium text-custom-sm text-dark">
-                      ${totalPrice}
+                    ₹{totalPrice}
                     </p>
                   </div>
                 </button>

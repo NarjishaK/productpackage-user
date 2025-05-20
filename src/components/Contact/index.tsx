@@ -33,7 +33,7 @@ const Contact = () => {
                         fill="#3C50E0"
                       />
                     </svg>
-                    Email: sales@gmail.com
+                    Email: sales@deelzon.com
                   </p>
 
                   <p className="flex items-center gap-4">
