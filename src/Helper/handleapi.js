@@ -1,7 +1,19 @@
 import axios from "axios";
 export const BASE_URL ="http://localhost:3001";
 // export const BASE_URL ="https://api.sstappstore.in";
-// 
+
+//signin
+
+export const loginCustomer = async (admin) => {
+    const response = await axios.post(`${BASE_URL}/customer/login`, admin);
+    return response.data;
+};
+
+//signup
+export const Customersignup = async (data) => {
+    const response = await axios.post(`${BASE_URL}/customer`, data);
+    return response.data;
+}
 
 //fetch all products
 export const fetchPackages = async () => {
