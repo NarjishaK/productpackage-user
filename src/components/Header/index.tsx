@@ -8,7 +8,6 @@ import { useAppSelector } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { selectTotalPrice } from "@/redux/features/cart-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
-import Image from "next/image";
 import { BASE_URL, fetchLogo } from "@/Helper/handleapi";
 
 const Header = () => {
@@ -57,7 +56,21 @@ const Header = () => {
     // { label: "Mouse", value: "6" },
     // { label: "Tablet", value: "7" },
   ];
+  const [customerName, setCustomerName] = useState(null);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedCustomer = localStorage.getItem("customerDetails");
+      if (storedCustomer) {
+        try {
+          const parsed = JSON.parse(storedCustomer);
+          setCustomerName(parsed.name); // Adjust the key as per your stored object
+        } catch (e) {
+          console.error("Error parsing customerDetails from localStorage:", e);
+        }
+      }
+    }
+  }, []);
   return (
     <header
       className={`fixed left-0 top-0 w-full z-9999 bg-white transition-all ease-in-out duration-300 ${
@@ -197,7 +210,7 @@ const Header = () => {
                       account
                     </span>
                     <p className="font-medium text-custom-sm text-dark">
-                      Sign In
+                      {customerName ? `Hi, ${customerName}` : "Sign In"}
                     </p>
                   </div>
                 </Link>
@@ -248,7 +261,7 @@ const Header = () => {
                       cart
                     </span>
                     <p className="font-medium text-custom-sm text-dark">
-                    ₹{totalPrice}
+                      ₹{totalPrice}
                     </p>
                   </div>
                 </button>
