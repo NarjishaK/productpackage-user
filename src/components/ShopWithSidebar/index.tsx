@@ -25,9 +25,9 @@ const ShopWithSidebar = () => {
   };
 
   const options = [
-    { label: "Latest Products", value: "0" },
+    { label: "Latest Pacakges", value: "0" },
     { label: "Best Selling", value: "1" },
-    { label: "Old Products", value: "2" },
+    { label: "Old Packages", value: "2" },
   ];
 
   const categories = [

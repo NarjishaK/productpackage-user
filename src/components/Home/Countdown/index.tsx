@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { BASE_URL, fetchProducts } from "@/Helper/handleapi";
 
 const CounDown = () => {
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
-
+  const [products, setProducts] = useState([]);
   const deadline = "December, 31, 2024";
 
   const getTime = () => {
@@ -25,6 +26,19 @@ const CounDown = () => {
 
     return () => clearInterval(interval);
   }, []);
+  
+    useEffect(() => {
+      fetchProducts()
+        .then((data) => {
+          const filtered = data.filter(
+            (product) => product.description && product.description.trim() !== ""
+          );
+          setProducts(filtered.slice(0, 3)); // Limit to first 3 products
+        })
+        .catch((error) => {
+          console.error("Error fetching products:", error);
+        });
+    }, []);
 
   return (
     <section className="overflow-hidden py-20">
@@ -36,18 +50,18 @@ const CounDown = () => {
             </span>
 
             <h2 className="font-bold text-dark text-xl lg:text-heading-4 xl:text-heading-3 mb-3">
-              Enhance Your Music Experience
+             Today’s Top-Selling Package
             </h2>
 
-            <p>The Havit H206d is a wired PC headphone.</p>
+            <p>The most popular choice among our customers today.</p>
 
             {/* <!-- Countdown timer --> */}
-            <div
+            {/* <div
               className="flex flex-wrap gap-6 mt-6"
               x-data="timer()"
               x-init="countdown()"
             >
-              {/* <!-- timer day --> */}
+              <!-- timer day -->
               <div>
                 <span
                   className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
@@ -61,7 +75,7 @@ const CounDown = () => {
                 </span>
               </div>
 
-              {/* <!-- timer hours --> */}
+              <!-- timer hours -->
               <div>
                 <span
                   className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
@@ -75,7 +89,7 @@ const CounDown = () => {
                 </span>
               </div>
 
-              {/* <!-- timer minutes --> */}
+              <!-- timer minutes -->
               <div>
                 <span
                   className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
@@ -88,7 +102,7 @@ const CounDown = () => {
                 </span>
               </div>
 
-              {/* <!-- timer seconds --> */}
+              <!-- timer seconds -->
               <div>
                 <span
                   className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
@@ -100,7 +114,7 @@ const CounDown = () => {
                   Seconds
                 </span>
               </div>
-            </div>
+            </div> */}
             {/* <!-- Countdown timer ends --> */}
 
             <a
@@ -119,13 +133,16 @@ const CounDown = () => {
             width={737}
             height={482}
           />
-          <Image
-            src="/images/countdown/countdown-01.png"
+            {products[1] && (
+                      
+          <img
+            src={`${BASE_URL}/images/${products[1].coverimage}`}
             alt="product"
             className="hidden lg:block absolute right-4 xl:right-33 bottom-4 xl:bottom-10 -z-1"
             width={411}
             height={376}
           />
+            )}
         </div>
       </div>
     </section>
