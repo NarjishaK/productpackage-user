@@ -1,6 +1,11 @@
 import axios from "axios";
 export const BASE_URL ="http://localhost:3001";
 // export const BASE_URL ="https://api.sstappstore.in";
+//package by id
+export const fetchPackageById = async (id) => {
+    const response = await axios.get(`${BASE_URL}/subcategory/${id}`);
+    return response.data;
+}
 
 //cartitems by customerId
 

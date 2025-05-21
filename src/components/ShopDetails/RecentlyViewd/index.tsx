@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import shopData from "@/components/Shop/shopData";
 import ProductItem from "@/components/Common/ProductItem";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useCallback, useRef } from "react";
 import "swiper/css/navigation";
 import "swiper/css";
+import { fetchPackages } from "@/Helper/handleapi";
 
 const RecentlyViewdItems = () => {
   const sliderRef = useRef(null);
@@ -22,7 +23,16 @@ const RecentlyViewdItems = () => {
     if (!sliderRef.current) return;
     sliderRef.current.swiper.slideNext();
   }, []);
-
+ const [products, setProducts] =useState([]);
+    useEffect(() => {
+      fetchPackages()
+        .then((data) => {
+          setProducts(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching products:", error);
+        });
+    },[])
   return (
     <section className="overflow-hidden pt-17.5">
       <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0 pb-15 border-b border-gray-3">
@@ -89,7 +99,7 @@ const RecentlyViewdItems = () => {
             spaceBetween={20}
             className="justify-between"
           >
-            {shopData.map((item, key) => (
+            {products.map((item, key) => (
               <SwiperSlide key={key}>
                 <ProductItem item={item} />
               </SwiperSlide>

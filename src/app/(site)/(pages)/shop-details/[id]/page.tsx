@@ -3,8 +3,8 @@ import ShopDetails from "@/components/ShopDetails";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shop Details Page | Deeelzon Package Booking",
-  description: "This is Shop Details Page for Deelzon Package Booking",
+  title: "Package Details Page | Deeelzon Package Booking",
+  description: "This is Package Details Page for Deelzon Package Booking",
   // other metadata
 };
 
