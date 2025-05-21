@@ -14,12 +14,14 @@ const SingleItem = ({ item, removeItemFromCart }) => {
     <div className="flex items-center justify-between gap-5">
       <div className="w-full flex items-center gap-6">
         <div className="flex items-center justify-center rounded-[10px] bg-gray-3 max-w-[90px] w-full ">
+          <a href={`/shop-details/${item.id || item.packageId._id}`}>
           <img src={`${BASE_URL}/images/${item.image||`${item.packageId.image}`}`} alt="product" width={100} height={100} />
+          </a>
         </div>
 
         <div>
           <h3 className="font-medium text-dark mb-1 ease-out duration-200 hover:text-blue">
-            <a href="#"> {item.packagename || item.packageId.packagename} </a>
+            <a href={`/shop-details/${item.id || item.packageId._id}`}> {item.packagename || item.packageId.packagename} </a>
           </h3>
           <p className="text-custom-sm">Price: ₹{item.price || item.packageId.price}</p>
         </div>

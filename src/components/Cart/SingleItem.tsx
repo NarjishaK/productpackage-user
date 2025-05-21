@@ -38,12 +38,23 @@ const SingleItem = ({ item }) => {
         <div className="flex items-center justify-between gap-5">
           <div className="w-full flex items-center gap-5.5">
             <div className="flex items-center justify-center rounded-[5px] bg-gray-2 max-w-[80px] w-full h-17.5">
-              <img width={200} height={200} src={`${BASE_URL}/images/${item.image||`${item.packageId.image}`}`} alt="product" />
+              <a href={`/shop-details/${item.id || item.packageId._id}`}>
+                <img
+                  width={200}
+                  height={200}
+                  src={`${BASE_URL}/images/${
+                    item.image || `${item.packageId.image}`
+                  }`}
+                  alt="product"
+                />
+              </a>
             </div>
 
             <div>
               <h3 className="text-dark ease-out duration-200 hover:text-blue">
-                <a href="#"> {item.packagename || item.packageId.packagename} </a>
+                <a href={`/shop-details/${item.id || item.packageId._id}`}>
+                  {item.packagename || item.packageId.packagename}{" "}
+                </a>
               </h3>
             </div>
           </div>
@@ -107,7 +118,9 @@ const SingleItem = ({ item }) => {
       </div>
 
       <div className="min-w-[200px]">
-        <p className="text-dark">₹{item.price * quantity || item.packageId.price * quantity}</p>
+        <p className="text-dark">
+          ₹{item.price * quantity || item.packageId.price * quantity}
+        </p>
       </div>
 
       <div className="min-w-[50px] flex justify-end">

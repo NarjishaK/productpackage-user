@@ -109,7 +109,9 @@ const SingleItem = ({ item }: { item: Product }) => {
         </div>
 
         <div className="flex justify-center items-center">
-          <img src={`${BASE_URL}/images/${item.image}`} alt="" />
+          <Link href={`shop-details/${item._id}`}>
+            <img src={`${BASE_URL}/images/${item.image}`} alt="" />
+          </Link>
         </div>
 
         <div className="absolute right-0 bottom-0 translate-x-full u-w-full flex flex-col gap-2 p-5.5 ease-linear duration-300 group-hover:translate-x-0">

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
@@ -15,14 +15,61 @@ import { BASE_URL } from "@/Helper/handleapi";
 const SingleListItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
-
+  const [isCustomer, setIsCustomer] = useState(false);
+  const [customerId, setCustomerId] = useState<string | null>(null);
   // update the QuickView state
   const handleQuickViewUpdate = () => {
     dispatch(updateQuickView({ ...item }));
   };
-
+ useEffect(() => {
+    // Check if customer details exist in localStorage
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    if (customerDetailsStr) {
+      try {
+        const customerDetails = JSON.parse(customerDetailsStr);
+        setIsCustomer(true);
+        setCustomerId(customerDetails._id || customerDetails.id);
+      } catch (error) {
+        console.error("Error parsing customer details:", error);
+        setIsCustomer(false);
+      }
+    }
+  }, []);
   // add to cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (isCustomer && customerId) {
+      try {
+        // Make API call to add product to customer cart
+        const response = await fetch(`${BASE_URL}/customercart`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerId: customerId,
+            packageId: item._id,
+            quantity: 1,
+          }),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to add to customer cart');
+        }
+
+        // Show success notification or feedback
+        console.log('Product added to customer cart successfully');
+      } catch (error) {
+        console.error('Error adding to customer cart:', error);
+        // Fallback to guest cart in case of API failure
+        addToGuestCart();
+      }
+    } else {
+      // If no customer details, use guest cart
+      addToGuestCart();
+    }
+  };
+
+  // Add to guest cart through Redux
+  const addToGuestCart = () => {
     dispatch(
       addItemToCart({
         ...item,
@@ -30,6 +77,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
       })
     );
   };
+
 
   const handleItemToWishList = () => {
     dispatch(
@@ -45,8 +93,9 @@ const SingleListItem = ({ item }: { item: Product }) => {
     <div className="group rounded-lg bg-white shadow-1">
       <div className="flex">
         <div className="shadow-list relative overflow-hidden flex items-center justify-center max-w-[270px] w-full sm:min-h-[270px] p-4">
+          <Link href={`/shop-details/${item._id}`} >
           <img src={`${BASE_URL}/images/${item.image}`} alt="" width={250} height={250} />
-
+          </Link>
           <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
             <button
               onClick={() => {
@@ -113,7 +162,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
         <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center justify-center sm:justify-between py-5 px-4 sm:px-7.5 lg:pl-11 lg:pr-12">
           <div>
             <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
-              <Link href="/shop-details"> {item.packagename} </Link>
+              <Link href={`/shop-details/${item._id}`}> {item.packagename} </Link>
             </h3>
 
             <span className="flex items-center gap-2 font-medium text-lg">

@@ -98,8 +98,9 @@ const ProductItem = ({ item }: { item: Product }) => {
   return (
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] mb-4">
+        <Link href={`/shop-details/${item._id}`}>
         <img src={`${BASE_URL}/images/${item.image}`} alt="" />
-
+       </Link>
         <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
           <button
             onClick={() => {
@@ -169,7 +170,7 @@ const ProductItem = ({ item }: { item: Product }) => {
         className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
         onClick={() => handleProductDetails()}
       >
-        <Link href={`shop-details/${item._id}`}> {item.packagename} </Link>
+        <Link href={`/shop-details/${item._id}`}> {item.packagename} </Link>
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
