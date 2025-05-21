@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import Image from "next/image";
+import React, { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { updateQuickView } from "@/redux/features/quickView-slice";
@@ -14,8 +13,24 @@ import { BASE_URL } from "@/Helper/handleapi";
 
 const ProductItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
-
   const dispatch = useDispatch<AppDispatch>();
+  const [isCustomer, setIsCustomer] = useState(false);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if customer details exist in localStorage
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    if (customerDetailsStr) {
+      try {
+        const customerDetails = JSON.parse(customerDetailsStr);
+        setIsCustomer(true);
+        setCustomerId(customerDetails._id || customerDetails.id);
+      } catch (error) {
+        console.error("Error parsing customer details:", error);
+        setIsCustomer(false);
+      }
+    }
+  }, []);
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
@@ -23,7 +38,41 @@ const ProductItem = ({ item }: { item: Product }) => {
   };
 
   // add to cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (isCustomer && customerId) {
+      try {
+        // Make API call to add product to customer cart
+        const response = await fetch(`${BASE_URL}/customercart`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerId: customerId,
+            packageId: item._id,
+            quantity: 1,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add to customer cart');
+        }
+
+        // Show success notification or feedback
+        console.log('Product added to customer cart successfully');
+      } catch (error) {
+        console.error('Error adding to customer cart:', error);
+        // Fallback to guest cart in case of API failure
+        addToGuestCart();
+      }
+    } else {
+      // If no customer details, use guest cart
+      addToGuestCart();
+    }
+  };
+
+  // Add to guest cart through Redux
+  const addToGuestCart = () => {
     dispatch(
       addItemToCart({
         ...item,
@@ -48,8 +97,8 @@ const ProductItem = ({ item }: { item: Product }) => {
 
   return (
     <div className="group">
-      <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB]  mb-4">
-        <img src={`${BASE_URL}/images/${item.image}`} alt=""  />
+      <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] mb-4">
+        <img src={`${BASE_URL}/images/${item.image}`} alt="" />
 
         <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
           <button
@@ -115,43 +164,6 @@ const ProductItem = ({ item }: { item: Product }) => {
           </button>
         </div>
       </div>
-
-      {/* <div className="flex items-center gap-2.5 mb-2">
-        <div className="flex items-center gap-1">
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-        </div>
-
-        <p className="text-custom-sm">({item.reviews})</p>
-      </div> */}
 
       <h3
         className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
