@@ -8,7 +8,7 @@ import { useAppSelector } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { selectTotalPrice } from "@/redux/features/cart-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
-import { BASE_URL, fetchLogo } from "@/Helper/handleapi";
+import { BASE_URL, fetchCartItems, fetchLogo } from "@/Helper/handleapi";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,7 +17,7 @@ const Header = () => {
   const { openCartModal } = useCartModalContext();
 
   const product = useAppSelector((state) => state.cartReducer.items);
-  const totalPrice = useSelector(selectTotalPrice);
+  // const totalPrice = useSelector(selectTotalPrice);
   const [logo, setLogo] = useState([]);
 
   useEffect(() => {
@@ -71,6 +71,45 @@ const Header = () => {
       }
     }
   }, []);
+    const guestCartItems = useAppSelector((state) => state.cartReducer.items);
+    const guestTotalPrice = useSelector(selectTotalPrice);
+  
+    const [customerCartItems, setCustomerCartItems] = useState([]);
+    const [useCustomerCart, setUseCustomerCart] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [customerTotalPrice, setCustomerTotalPrice] = useState(0);
+  
+    useEffect(() => {
+      const customerDetailsStr = localStorage.getItem("customerDetails");
+      const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : null;
+      const customerId = customerDetails?._id || customerDetails?.id;
+  
+      if (customerId) {
+        setUseCustomerCart(true);
+        fetchCartItems(customerId)
+          .then((data) => {
+            setCustomerCartItems(data);
+            const total = data.reduce(
+              (acc, item) => acc + item?.packageId?.price * item.quantity,
+              0
+            );
+            setCustomerTotalPrice(total);
+          })
+          .catch((err) => {
+            console.error("Failed to fetch customer cart", err);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      } else {
+        setUseCustomerCart(false);
+        setLoading(false);
+      }
+    }, []);
+  
+    const displayedItems = useCustomerCart ? customerCartItems : guestCartItems;
+    const totalPrice = useCustomerCart ? customerTotalPrice : guestTotalPrice;
+  
   return (
     <header
       className={`fixed left-0 top-0 w-full z-9999 bg-white transition-all ease-in-out duration-300 ${
@@ -252,7 +291,7 @@ const Header = () => {
                     </svg>
 
                     <span className="flex items-center justify-center font-medium text-2xs absolute -right-2 -top-2.5 bg-blue w-4.5 h-4.5 rounded-full text-white">
-                      {product.length}
+                      {guestCartItems.length || customerCartItems.length} 
                     </span>
                   </span>
 

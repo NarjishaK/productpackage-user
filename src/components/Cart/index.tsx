@@ -83,7 +83,7 @@ const Cart = () => {
                     ))
                   ) : (
                     <>
-                    <EmptyCart />
+                    {/* <EmptyCart /> */}
                     </>
                   )}
                 </div>
