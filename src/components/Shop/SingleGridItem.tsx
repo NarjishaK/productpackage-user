@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { updateQuickView } from "@/redux/features/quickView-slice";
@@ -8,7 +8,6 @@ import { addItemToWishlist } from "@/redux/features/wishlist-slice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import Link from "next/link";
-import Image from "next/image";
 import { BASE_URL } from "@/Helper/handleapi";
 
 const SingleGridItem = ({ item }: { item: Product }) => {
@@ -16,13 +15,62 @@ const SingleGridItem = ({ item }: { item: Product }) => {
 
   const dispatch = useDispatch<AppDispatch>();
 
+  const [isCustomer, setIsCustomer] = useState(false);
+  const [customerId, setCustomerId] = useState<string | null>(null);
   // update the QuickView state
   const handleQuickViewUpdate = () => {
     dispatch(updateQuickView({ ...item }));
   };
-
+  useEffect(() => {
+    // Check if customer details exist in localStorage
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    if (customerDetailsStr) {
+      try {
+        const customerDetails = JSON.parse(customerDetailsStr);
+        setIsCustomer(true);
+        setCustomerId(customerDetails._id || customerDetails.id);
+      } catch (error) {
+        console.error("Error parsing customer details:", error);
+        setIsCustomer(false);
+      }
+    }
+  }, []);
   // add to cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (isCustomer && customerId) {
+      try {
+        // Make API call to add product to customer cart
+        const response = await fetch(`${BASE_URL}/customercart`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerId: customerId,
+            packageId: item._id,
+            quantity: 1,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add to customer cart');
+        }
+
+        // Show success notification or feedback
+        console.log('Product added to customer cart successfully');
+      } catch (error) {
+        console.error('Error adding to customer cart:', error);
+        // Fallback to guest cart in case of API failure
+        addToGuestCart();
+      }
+    } else {
+      // If no customer details, use guest cart
+      addToGuestCart();
+    }
+  };
+
+  // Add to guest cart through Redux
+  const addToGuestCart = () => {
     dispatch(
       addItemToCart({
         ...item,
@@ -30,6 +78,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
       })
     );
   };
+
 
   const handleItemToWishList = () => {
     dispatch(
