@@ -2,14 +2,11 @@
 import React, { useEffect, useState } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import Image from "next/image";
-import Newsletter from "../Common/Newsletter";
 import RecentlyViewdItems from "./RecentlyViewd";
-import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
-import { BASE_URL, fetchPackageById } from "@/Helper/handleapi";
+import { BASE_URL, fetchPackageById, fetchPackageWithProducts } from "@/Helper/handleapi";
 import { useParams } from "next/navigation";
 
 const ShopDetails = () => {
-  const { openPreviewModal } = usePreviewSlider();
   const [quantity, setQuantity] = useState(1);
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("tabOne");
@@ -33,6 +30,7 @@ const ShopDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [packageProducts, setPackageProducts] = useState([]);
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -49,6 +47,34 @@ const ShopDetails = () => {
 
     fetchProductDetails();
   }, [id]); // Re-fetch when id changes
+  // Fetch package products
+  useEffect(() => {
+    const getPackageProducts = async () => {
+      if (!product?._id) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchPackageWithProducts(product._id);
+        console.log("Package data:", data); // Debug log
+
+        if (data && data.products) {
+          setPackageProducts(data.products);
+        } else {
+          setPackageProducts([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch package products:", error);
+        setError("Failed to load package products");
+        setPackageProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getPackageProducts();
+  }, [product?._id]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -305,11 +331,26 @@ const ShopDetails = () => {
                     </h2>
 
                     <p className="">
-                      Lorem Ipsum is simply dummy text of the printing and
-                      typesetting industry. Lorem Ipsum has been the
-                      industry&apos;s standard dummy text ever since the 1500s,
-                      when an unknown printer took a galley of type and
-                      scrambled it to make a type specimen book.
+                       {!loading && !error && (
+                  <ul
+                    className="list-disc pl-5 mt-2 text-dark-700"
+                  >
+                    {packageProducts.length > 0 ? (
+                      packageProducts.map((prod, index) => (
+                        <>
+                          <li key={prod._id || index} className="mb-1">
+                            {prod.title}: {prod.about}
+                          </li>
+                          {prod.description && (
+                            <p className="mb-1">{prod.description}</p>
+                          )}
+                        </>
+                      ))
+                    ) : (
+                      <li>No products available</li>
+                    )}
+                  </ul>
+                )}
                     </p>
                   </div>
                 </div>
@@ -633,7 +674,6 @@ const ShopDetails = () => {
               </div>
             </div>
           </section>
-
           <RecentlyViewdItems />
         </>
       )}
