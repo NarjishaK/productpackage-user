@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useEffect, useState } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
@@ -9,11 +10,16 @@ import {
   fetchPackageWithProducts,
 } from "@/Helper/handleapi";
 import { useParams } from "next/navigation";
+import { addItemToCart } from "@/redux/features/cart-slice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import Swal from "sweetalert2";
 
 const ShopDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("tabOne");
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const tabs = [
     {
@@ -35,6 +41,25 @@ const ShopDetails = () => {
   const [error, setError] = useState(null);
 
   const [packageProducts, setPackageProducts] = useState([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const [isCustomer, setIsCustomer] = useState(false);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if customer details exist in localStorage
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    if (customerDetailsStr) {
+      try {
+        const customerDetails = JSON.parse(customerDetailsStr);
+        setIsCustomer(true);
+        setCustomerId(customerDetails._id || customerDetails.id);
+      } catch (error) {
+        console.error("Error parsing customer details:", error);
+        setIsCustomer(false);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -51,6 +76,7 @@ const ShopDetails = () => {
 
     fetchProductDetails();
   }, [id]); // Re-fetch when id changes
+
   // Fetch package products
   useEffect(() => {
     const getPackageProducts = async () => {
@@ -80,16 +106,77 @@ const ShopDetails = () => {
     getPackageProducts();
   }, [product?._id]);
 
+  const handleAddToCart = async () => {
+    if (!product) return;
+    
+    setIsAddingToCart(true);
+    
+    if (isCustomer && customerId) {
+      try {
+        // Make API call to add product to customer cart
+        const response = await fetch(`${BASE_URL}/customercart`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerId: customerId,
+            packageId: product._id,
+            quantity: quantity,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add to customer cart');
+        }
+
+        const result = await response.json();
+        console.log('Product added to customer cart successfully', result);
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Product added to cart successfully!',
+        })
+        
+      } catch (error) {
+        console.error('Error adding to customer cart:', error);
+        // Fallback to guest cart in case of API failure
+        addToGuestCart();
+      }
+    } else {
+      // If no customer details, use guest cart
+      addToGuestCart();
+    }
+    
+    setIsAddingToCart(false);
+  };
+
+  // Add to guest cart through Redux
+  const addToGuestCart = () => {
+    dispatch(
+      addItemToCart({
+        ...product,
+        quantity: quantity,
+      })
+    );
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Product added to cart successfully!',
+    })
+  };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>;
   }
 
   if (!product) {
-    return <div>No product found!</div>;
+    return <div className="flex justify-center items-center min-h-screen">No product found!</div>;
   }
 
   return (
@@ -185,6 +272,7 @@ const ShopDetails = () => {
                       <div className="flex flex-wrap items-center gap-4.5">
                         <div className="flex items-center rounded-md border border-gray-3">
                           <button
+                            type="button"
                             aria-label="button for remove product"
                             className="flex items-center justify-center w-12 h-12 ease-out duration-200 hover:text-blue"
                             onClick={() =>
@@ -211,6 +299,7 @@ const ShopDetails = () => {
                           </span>
 
                           <button
+                            type="button"
                             onClick={() => setQuantity(quantity + 1)}
                             aria-label="button for add product"
                             className="flex items-center justify-center w-12 h-12 ease-out duration-200 hover:text-blue"
@@ -235,12 +324,14 @@ const ShopDetails = () => {
                           </button>
                         </div>
 
-                        <a
-                          href="#"
-                          className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark"
+                        <button
+                          type="button"
+                          onClick={handleAddToCart}
+                          disabled={isAddingToCart}
+                          className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Purchase Now
-                        </a>
+                          {isAddingToCart ? "Adding..." : "Purchase Now"}
+                        </button>
                       </div>
                     </div>
                   </form>
