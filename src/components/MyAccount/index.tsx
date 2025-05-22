@@ -128,7 +128,7 @@ const MyAccount = () => {
                       Orders
                     </button>
 
-                    <button
+                    {/* <button
                       onClick={() => setActiveTab("downloads")}
                       className={`flex items-center rounded-md gap-2.5 py-3 px-4.5 ease-out duration-200 hover:bg-blue hover:text-white ${
                         activeTab === "downloads"
@@ -154,7 +154,7 @@ const MyAccount = () => {
                         />
                       </svg>
                       Downloads
-                    </button>
+                    </button> */}
 
                     <button
                       onClick={() => setActiveTab("addresses")}
@@ -584,13 +584,11 @@ const MyAccount = () => {
                       <label htmlFor="firstName" className="block mb-2.5">
                         First Name <span className="text-red">*</span>
                       </label>
-
                       <input
                         type="text"
                         name="firstName"
                         id="firstName"
                         placeholder="Jhon"
-                        value="Jhon"
                         className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                       />
                     </div>
@@ -605,7 +603,6 @@ const MyAccount = () => {
                         name="lastName"
                         id="lastName"
                         placeholder="Deo"
-                        value="Deo"
                         className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                       />
                     </div>
@@ -634,9 +631,7 @@ const MyAccount = () => {
                         >
                           <path
                             d="M2.41469 5.03569L2.41467 5.03571L2.41749 5.03846L7.76749 10.2635L8.0015 10.492L8.23442 10.2623L13.5844 4.98735L13.5844 4.98735L13.5861 4.98569C13.6809 4.89086 13.8199 4.89087 13.9147 4.98569C14.0092 5.08024 14.0095 5.21864 13.9155 5.31345C13.9152 5.31373 13.915 5.31401 13.9147 5.31429L8.16676 10.9622L8.16676 10.9622L8.16469 10.9643C8.06838 11.0606 8.02352 11.0667 8.00039 11.0667C7.94147 11.0667 7.89042 11.0522 7.82064 10.9991L2.08526 5.36345C1.99127 5.26865 1.99154 5.13024 2.08609 5.03569C2.18092 4.94086 2.31986 4.94086 2.41469 5.03569Z"
-                            fill=""
-                            stroke=""
-                            stroke-width="0.666667"
+                            strokeWidth="0.666667"
                           />
                         </svg>
                       </span>
