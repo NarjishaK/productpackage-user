@@ -43,10 +43,10 @@ const [products, setProducts] =useState([]);
                   <div className="flex flex-wrap items-center gap-4">
                     <CustomSelect options={options} />
 
-                    <p>
+                    {/* <p>
                       Showing <span className="text-dark">9 of 50</span>{" "}
-                      Products
-                    </p>
+                      Packages
+                    </p> */}
                   </div>
 
                   {/* <!-- top bar right --> */}
