@@ -1,6 +1,16 @@
 import axios from "axios";
 export const BASE_URL ="http://localhost:3001";
 // export const BASE_URL ="https://api.sstappstore.in";
+//getPackageWithProducts
+export const fetchPackageWithProducts = async (packageId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/subcategory/package/${packageId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching package with products:', error);
+    throw error;
+  }
+};
 //package by id
 export const fetchPackageById = async (id) => {
     const response = await axios.get(`${BASE_URL}/subcategory/${id}`);

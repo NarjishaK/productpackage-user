@@ -5,16 +5,18 @@ import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { addItemToCart } from "@/redux/features/cart-slice";
 import { useDispatch } from "react-redux";
-import { BASE_URL } from "@/Helper/handleapi";
+import { BASE_URL, fetchPackageWithProducts } from "@/Helper/handleapi";
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
   const [quantity, setQuantity] = useState(1);
+  const [packageProducts, setPackageProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const dispatch = useDispatch<AppDispatch>();
 
   // get the product data
   const product = useAppSelector((state) => state.quickViewReducer.value);
-
 
   // add to cart
   const handleAddToCart = () => {
@@ -28,8 +30,37 @@ const QuickViewModal = () => {
     closeModal();
   };
 
+  // Fetch package products
   useEffect(() => {
-    // closing modal while clicking outside
+    const getPackageProducts = async () => {
+      if (!product?._id || !isModalOpen) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchPackageWithProducts(product._id);
+        console.log("Package data:", data); // Debug log
+
+        if (data && data.products) {
+          setPackageProducts(data.products);
+        } else {
+          setPackageProducts([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch package products:", error);
+        setError("Failed to load package products");
+        setPackageProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getPackageProducts();
+  }, [isModalOpen, product?._id]);
+
+  // Handle modal close and cleanup
+  useEffect(() => {
     function handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
         closeModal();
@@ -42,10 +73,16 @@ const QuickViewModal = () => {
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-
       setQuantity(1);
+      setPackageProducts([]);
+      setError(null);
     };
   }, [isModalOpen, closeModal]);
+
+  // Don't render if no product data
+  if (!product) {
+    return null;
+  }
 
   return (
     <div
@@ -81,7 +118,21 @@ const QuickViewModal = () => {
             <div className="max-w-[526px] w-full">
               <div className="flex gap-5">
                 <div className="flex flex-col gap-5">
-                 
+                  {packageProducts.length > 0 ? (
+                    packageProducts.map((prod, index) => (
+                      <button
+                        className={`flex items-center justify-center w-20 h-20 overflow-hidden rounded-lg bg-gray-1 ease-out duration-200 hover:border-2 hover:border-blue`}
+                      >
+                        <img
+                          src={`${BASE_URL}/images/${prod.coverimage}`}
+                          alt="thumbnail"
+                          width={61}
+                          height={61}
+                          className="aspect-square"
+                        />
+                      </button>
+                    ))
+                  ) : (
                     <button
                       className={`flex items-center justify-center w-20 h-20 overflow-hidden rounded-lg bg-gray-1 ease-out duration-200 hover:border-2 hover:border-blue`}
                     >
@@ -93,9 +144,10 @@ const QuickViewModal = () => {
                         className="aspect-square"
                       />
                     </button>
+                  )}
                 </div>
 
-                <div className="relative z-1 overflow-hidden flex items-center justify-center w-full sm:min-h-[508px]  rounded-lg border border-gray-3">
+                <div className="relative z-1 overflow-hidden flex items-center justify-center w-full sm:min-h-[508px] rounded-lg border border-gray-3">
                   <div>
                     <img
                       src={`${BASE_URL}/images/${product.image}`}
@@ -109,15 +161,42 @@ const QuickViewModal = () => {
             </div>
 
             <div className="max-w-[445px] w-full">
-
               <h3 className="font-semibold text-xl xl:text-heading-5 text-dark mb-4">
                 {product.packagename}
               </h3>
-              <p>
-                <b>{product.packagename}<br/></b>
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has.
-              </p>
+
+              <div className="mb-6">
+                {loading && (
+                  <div className="text-gray-500">Loading products...</div>
+                )}
+
+                {error && <div className="text-red-500">{error}</div>}
+
+                {!loading && !error && (
+                  <ul
+                    className="list-disc pl-5 mt-2 text-dark-700"
+                    style={{ color: "black" }}
+                  >
+                    {packageProducts.length > 0 ? (
+                      packageProducts.map((prod, index) => (
+                        <>
+                          <li key={prod._id || index} className="mb-1">
+                            {prod.title}
+                          </li>
+                          <p
+                            className="text-gray-700"
+                            style={{ color: "gray" }}
+                          >
+                            {prod.about}
+                          </p>
+                        </>
+                      ))
+                    ) : (
+                      <li>No products available</li>
+                    )}
+                  </ul>
+                )}
+              </div>
 
               <div className="flex flex-wrap justify-between gap-5 mt-6 mb-7.5">
                 <div>
@@ -127,7 +206,7 @@ const QuickViewModal = () => {
 
                   <span className="flex items-center gap-2">
                     <span className="font-semibold text-dark text-xl xl:text-heading-4">
-                     ₹{product.price}
+                      ₹{product.price}
                     </span>
                   </span>
                 </div>
@@ -142,7 +221,7 @@ const QuickViewModal = () => {
                       onClick={() => quantity > 1 && setQuantity(quantity - 1)}
                       aria-label="button for remove product"
                       className="flex items-center justify-center w-10 h-10 rounded-[5px] bg-gray-2 text-dark ease-out duration-200 hover:text-blue"
-                      disabled={quantity < 0 && true}
+                      disabled={quantity <= 1}
                     >
                       <svg
                         className="fill-current"
@@ -161,10 +240,7 @@ const QuickViewModal = () => {
                       </svg>
                     </button>
 
-                    <span
-                      className="flex items-center justify-center w-20 h-10 rounded-[5px] border border-gray-4 bg-white font-medium text-dark"
-                      x-text="quantity"
-                    >
+                    <span className="flex items-center justify-center w-20 h-10 rounded-[5px] border border-gray-4 bg-white font-medium text-dark">
                       {quantity}
                     </span>
 
@@ -201,11 +277,10 @@ const QuickViewModal = () => {
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
-                  disabled={quantity === 0 && true}
+                  disabled={quantity === 0}
                   onClick={() => handleAddToCart()}
-                  className={`inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark text-center
-                  `}
-                  style={{width:"100%",justifyContent:"center"}}
+                  className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ width: "100%", justifyContent: "center" }}
                 >
                   Book Now
                 </button>
