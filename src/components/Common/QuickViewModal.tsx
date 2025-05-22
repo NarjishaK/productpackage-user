@@ -190,6 +190,7 @@ const QuickViewModal = () => {
                     packageProducts.map((prod, index) => (
                       <button
                         className={`flex items-center justify-center w-20 h-20 overflow-hidden rounded-lg bg-gray-1 ease-out duration-200 hover:border-2 hover:border-blue`}
+                        key={index}
                       >
                         <img
                           src={`${BASE_URL}/images/${prod.coverimage}`}
