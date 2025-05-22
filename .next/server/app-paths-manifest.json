@@ -1,8 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(site)/(pages)/shop-details/[id]/page": "app/(site)/(pages)/shop-details/[id]/page.js",
-  "/(site)/(pages)/shop-without-sidebar/page": "app/(site)/(pages)/shop-without-sidebar/page.js",
-  "/(site)/page": "app/(site)/page.js",
-  "/(site)/(pages)/cart/page": "app/(site)/(pages)/cart/page.js",
-  "/(site)/(pages)/wishlist/page": "app/(site)/(pages)/wishlist/page.js"
-}
