@@ -6,6 +6,7 @@ import { AppDispatch, useAppSelector } from "@/redux/store";
 import { addItemToCart } from "@/redux/features/cart-slice";
 import { useDispatch } from "react-redux";
 import { BASE_URL, fetchPackageWithProducts } from "@/Helper/handleapi";
+import Swal from "sweetalert2";
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
@@ -15,19 +16,86 @@ const QuickViewModal = () => {
   const [error, setError] = useState(null);
   const dispatch = useDispatch<AppDispatch>();
 
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   // get the product data
   const product = useAppSelector((state) => state.quickViewReducer.value);
+  const [isCustomer, setIsCustomer] = useState(false);
+  const [customerId, setCustomerId] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Check if customer details exist in localStorage
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    if (customerDetailsStr) {
+      try {
+        const customerDetails = JSON.parse(customerDetailsStr);
+        setIsCustomer(true);
+        setCustomerId(customerDetails._id || customerDetails.id);
+      } catch (error) {
+        console.error("Error parsing customer details:", error);
+        setIsCustomer(false);
+      }
+    }
+  }, []);
   // add to cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (!product) return;
+
+    setIsAddingToCart(true);
+
+    if (isCustomer && customerId) {
+      try {
+        // Make API call to add product to customer cart
+        const response = await fetch(`${BASE_URL}/customercart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customerId: customerId,
+            packageId: product._id,
+            quantity: quantity,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to add to customer cart");
+        }
+
+        const result = await response.json();
+        console.log("Product added to customer cart successfully", result);
+
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Product added to cart successfully!",
+        });
+        closeModal();
+      } catch (error) {
+        console.error("Error adding to customer cart:", error);
+        // Fallback to guest cart in case of API failure
+        addToGuestCart();
+      }
+    } else {
+      // If no customer details, use guest cart
+      addToGuestCart();
+    }
+
+    setIsAddingToCart(false);
+  };
+
+  // Add to guest cart through Redux
+  const addToGuestCart = () => {
     dispatch(
       addItemToCart({
         ...product,
-        quantity,
+        quantity: quantity,
       })
     );
-
-    closeModal();
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Product added to cart successfully!",
+    });
   };
 
   // Fetch package products
@@ -277,12 +345,13 @@ const QuickViewModal = () => {
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
-                  disabled={quantity === 0}
-                  onClick={() => handleAddToCart()}
-                  className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark text-center disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ width: "100%", justifyContent: "center" }}
+                  type="button"
+                  style={{width: "100%",justifyContent: "center"}}
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart}
+                  className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Book Now
+                  {isAddingToCart ? "Adding..." : "Purchase Now"}
                 </button>
               </div>
             </div>
