@@ -5,6 +5,9 @@ import Image from "next/image";
 import AddressModal from "./AddressModal";
 import Orders from "../Orders";
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import axios from "axios";
+import { BASE_URL } from "@/Helper/handleapi";
+import Swal from "sweetalert2";
 
 const MyAccount = () => {
   const [activeTab, setActiveTab] = useState("orders");
@@ -19,6 +22,47 @@ const MyAccount = () => {
   };
 const customerDetailsStr = localStorage.getItem("customerDetails");
 const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : null;
+
+const [formData, setFormData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : null;
+
+    if (!customerDetails?._id) {
+      return alert("Customer not logged in.");
+    }
+
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/customer/update-password/${customerDetails._id}`,
+        formData
+      );
+      alert(response.data.message);
+      setFormData({
+        oldPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      });
+    } catch (error) {
+      // alert(error.response?.data?.message || "Something went wrong");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response?.data?.message || "Something went wrong",
+      })
+    }
+  };
   return (
     <>
       <Breadcrumb title={"My Account"} pages={["my account"]} />
@@ -166,7 +210,7 @@ const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : nu
                 activeTab === "account-details" ? "block" : "hidden"
               }`}
             >
-              <form>
+              <form onSubmit={handlePasswordChange}>
                 <p className="font-medium text-xl sm:text-2xl text-dark mb-7">
                   Password Change
                 </p>
@@ -179,8 +223,10 @@ const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : nu
 
                     <input
                       type="password"
-                      name="oldPassword"
-                      id="oldPassword"
+                       name="oldPassword"
+            id="oldPassword"
+            value={formData.oldPassword}
+            onChange={handleChange}
                       autoComplete="on"
                       className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
@@ -193,8 +239,10 @@ const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : nu
 
                     <input
                       type="password"
-                      name="newPassword"
-                      id="newPassword"
+                       name="newPassword"
+            id="newPassword"
+            value={formData.newPassword}
+            onChange={handleChange}
                       autoComplete="on"
                       className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
@@ -210,8 +258,10 @@ const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : nu
 
                     <input
                       type="password"
-                      name="confirmNewPassword"
-                      id="confirmNewPassword"
+                       name="confirmNewPassword"
+            id="confirmNewPassword"
+            value={formData.confirmNewPassword}
+            onChange={handleChange}
                       autoComplete="on"
                       className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
