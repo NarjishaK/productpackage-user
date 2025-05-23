@@ -49,11 +49,11 @@ const SingleOrder = ({ orderItem, smallView }: any) => {
           </div>
 
           <div className="min-w-[213px]">
-            <p className="text-custom-sm text-dark">{orderItem.title}</p>
+            <p className="text-custom-sm text-dark">Health check up</p>
           </div>
 
           <div className="min-w-[113px]">
-            <p className="text-custom-sm text-dark">{orderItem.total}</p>
+            <p className="text-custom-sm text-dark">₹ 100</p>
           </div>
 
           <div className="flex gap-5 items-center">
@@ -102,14 +102,13 @@ const SingleOrder = ({ orderItem, smallView }: any) => {
 
             <div className="">
               <p className="text-custom-sm text-dark">
-                <span className="font-bold pr-2">Title:</span> {orderItem.title}
+                <span className="font-bold pr-2">Title:</span> Blood Test
               </p>
             </div>
 
             <div className="">
               <p className="text-custom-sm text-dark">
-                <span className="font-bold pr-2">Total:</span> $
-                {orderItem.total}
+                <span className="font-bold pr-2">Total:</span> ₹100
               </p>
             </div>
 
