@@ -1,12 +1,7 @@
-import { selectTotalPrice } from "@/redux/features/cart-slice";
-import { useAppSelector } from "@/redux/store";
+// Updated OrderSummary Component
 import React from "react";
-import { useSelector } from "react-redux";
 
-const OrderSummary = () => {
-  const cartItems = useAppSelector((state) => state.cartReducer.items);
-  const totalPrice = useSelector(selectTotalPrice);
-
+const OrderSummary = ({ cartItems, totalPrice, useCustomerCart }) => {
   return (
     <div className="lg:max-w-[455px] w-full">
       {/* <!-- order list box --> */}
@@ -30,11 +25,20 @@ const OrderSummary = () => {
           {cartItems.map((item, key) => (
             <div key={key} className="flex items-center justify-between py-5 border-b border-gray-3">
               <div>
-                <p className="text-dark">{item.packagename}</p>
+                <p className="text-dark">
+                  {useCustomerCart 
+                    ? item.packageId?.packagename 
+                    : item.packagename
+                  }
+                  {`x ${item.packagename}` && ` x ${item.quantity}`}
+                </p>
               </div>
               <div>
                 <p className="text-dark text-right">
-                 ₹{item.price * item.quantity}
+                  ₹{useCustomerCart 
+                    ? (item.packageId?.price * item.quantity)
+                    : (item.price * item.quantity)
+                  }
                 </p>
               </div>
             </div>

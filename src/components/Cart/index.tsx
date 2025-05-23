@@ -92,7 +92,12 @@ const Cart = () => {
 
             <div className="flex flex-col lg:flex-row gap-7.5 xl:gap-11 mt-9">
               <Discount />
-              <OrderSummary />
+              {/* Pass the cart data to OrderSummary */}
+              <OrderSummary 
+                cartItems={displayedItems} 
+                totalPrice={totalPrice}
+                useCustomerCart={useCustomerCart}
+              />
             </div>
           </div>
         </section>
