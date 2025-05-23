@@ -1,22 +1,57 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { BASE_URL } from "@/Helper/handleapi";
+import Swal from "sweetalert2";
 
 const AddressModal = ({ isOpen, closeModal }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+
+  const customerDetails = JSON.parse(localStorage.getItem("customerDetails")) || {};
+
   useEffect(() => {
-    // closing modal while clicking outside
-    function handleClickOutside(event) {
-      if (!event.target.closest(".modal-content")) {
-        closeModal();
-      }
+    if (customerDetails) {
+      setFormData({
+        name: customerDetails.name || "",
+        email: customerDetails.email || "",
+        phone: customerDetails.phone || "",
+        address: customerDetails.address || "",
+      });
     }
+  }, [isOpen]);
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.put(
+        `${BASE_URL}/customer/${customerDetails._id}`,
+        formData
+      );
+      // alert("Customer updated successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Customer updated successfully!",
+      })
+      localStorage.setItem("customerDetails", JSON.stringify(res.data));
+      closeModal();
+    } catch (error) {
+      // alert(error.response?.data?.message || "Update failed.");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response?.data?.message || "Update failed.",
+      })
     }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, closeModal]);
+  };
 
   return (
     <div
@@ -62,7 +97,9 @@ const AddressModal = ({ isOpen, closeModal }) => {
                   <input
                     type="text"
                     name="name"
-                    placeholder="Jhon Doe"
+  value={formData.name}
+  onChange={handleChange}
+                    placeholder={customerDetails?.name}
                     className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
@@ -75,7 +112,9 @@ const AddressModal = ({ isOpen, closeModal }) => {
                   <input
                     type="email"
                     name="email"
-                    placeholder="4bM0H@example.com"
+  value={formData.email}
+  onChange={handleChange}
+                    placeholder={customerDetails?.email}
                     className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
@@ -90,7 +129,9 @@ const AddressModal = ({ isOpen, closeModal }) => {
                   <input
                     type="text"
                     name="phone"
-                    placeholder="+123 456 7890"
+  value={formData.phone}
+  onChange={handleChange}
+                    placeholder={customerDetails?.phone}
                     className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
@@ -102,8 +143,10 @@ const AddressModal = ({ isOpen, closeModal }) => {
 
                   <input
                     type="text"
-                    name="address"
-                    placeholder="Address"
+                  name="address"
+  value={formData.address}
+  onChange={handleChange}
+                    placeholder={customerDetails?.address}
                     className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
@@ -111,9 +154,10 @@ const AddressModal = ({ isOpen, closeModal }) => {
 
               <button
                 type="submit"
+                 onClick={handleSubmit}
                 className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark"
               >
-                Save Changes
+                Update Changes
               </button>
             </form>
           </div>
