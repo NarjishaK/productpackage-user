@@ -11,7 +11,8 @@ const AddressModal = ({ isOpen, closeModal }) => {
     address: "",
   });
 
-  const customerDetails = JSON.parse(localStorage.getItem("customerDetails")) || {};
+  const customerDetails =
+    JSON.parse(localStorage.getItem("customerDetails")) || {};
 
   useEffect(() => {
     if (customerDetails) {
@@ -40,7 +41,7 @@ const AddressModal = ({ isOpen, closeModal }) => {
         icon: "success",
         title: "Success!",
         text: "Customer updated successfully!",
-      })
+      });
       localStorage.setItem("customerDetails", JSON.stringify(res.data));
       closeModal();
     } catch (error) {
@@ -49,7 +50,7 @@ const AddressModal = ({ isOpen, closeModal }) => {
         icon: "error",
         title: "Oops...",
         text: error.response?.data?.message || "Update failed.",
-      })
+      });
     }
   };
 
@@ -97,8 +98,8 @@ const AddressModal = ({ isOpen, closeModal }) => {
                   <input
                     type="text"
                     name="name"
-  value={formData.name}
-  onChange={handleChange}
+                    value={formData.name}
+                    onChange={handleChange}
                     placeholder={customerDetails?.name}
                     className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
@@ -112,8 +113,8 @@ const AddressModal = ({ isOpen, closeModal }) => {
                   <input
                     type="email"
                     name="email"
-  value={formData.email}
-  onChange={handleChange}
+                    value={formData.email}
+                    onChange={handleChange}
                     placeholder={customerDetails?.email}
                     className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
@@ -129,32 +130,31 @@ const AddressModal = ({ isOpen, closeModal }) => {
                   <input
                     type="text"
                     name="phone"
-  value={formData.phone}
-  onChange={handleChange}
+                    value={formData.phone}
+                    onChange={handleChange}
                     placeholder={customerDetails?.phone}
                     className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
+              </div>
+              <div className="w-full">
+                <label htmlFor="address" className="block mb-2.5">
+                  Address
+                </label>
 
-                <div className="w-full">
-                  <label htmlFor="address" className="block mb-2.5">
-                    Address
-                  </label>
-
-                  <input
-                    type="text"
+                <textarea
+                  rows={5}
                   name="address"
-  value={formData.address}
-  onChange={handleChange}
-                    placeholder={customerDetails?.address}
-                    className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                  />
-                </div>
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder={customerDetails?.address}
+                  className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                />
               </div>
 
               <button
                 type="submit"
-                 onClick={handleSubmit}
+                onClick={handleSubmit}
                 className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark"
               >
                 Update Changes
