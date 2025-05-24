@@ -1,10 +1,53 @@
-// Updated OrderSummary Component
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
+import Swal from "sweetalert2";
 
 const OrderSummary = ({ cartItems, totalPrice, useCustomerCart }) => {
+  // const router = useRouter();
+  
+  // Check if customer details exist in localStorage
+  const checkCustomerDetails = () => {
+    try {
+      const customerDetailsStr = localStorage.getItem("customerDetails");
+      return customerDetailsStr && JSON.parse(customerDetailsStr);
+    } catch (error) {
+      console.error("Error parsing customer details:", error);
+      return null;
+    }
+  };
+
+  const handleCheckoutClick = async (e) => {
+    const customerDetails = checkCustomerDetails();
+    
+    if (!customerDetails) {
+      e.preventDefault(); // Prevent navigation
+      
+      // Show SweetAlert with signup option
+      const result = await Swal.fire({
+        title: 'First Signup Required!',
+        text: 'You need to signup before proceeding to checkout.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Go to Signup',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+      });
+      
+      if (result.isConfirmed) {
+        // Redirect to signup page using Next.js router
+        // router.push("/signin");
+        window.location.href = "/signin";
+      }
+      return;
+    }
+    
+    // If customer details exist, allow normal navigation to checkout
+  };
+
   return (
-    // <div className="lg:max-w-[455px] w-full">
     <div className="lg:max-w-[670px] w-full">
       {/* <!-- order list box --> */}
       <div className="bg-white shadow-1 rounded-[10px]">
@@ -32,7 +75,7 @@ const OrderSummary = ({ cartItems, totalPrice, useCustomerCart }) => {
                     ? item.packageId?.packagename 
                     : item.packagename
                   }
-                  {`x ${item.packagename}` && ` x ${item.quantity}`}
+                  {item.quantity && ` x ${item.quantity}`}
                 </p>
               </div>
               <div>
@@ -59,14 +102,14 @@ const OrderSummary = ({ cartItems, totalPrice, useCustomerCart }) => {
           </div>
 
           {/* <!-- checkout button --> */}
-          <button
-            type="submit"
-            className="w-full flex justify-center font-medium text-white bg-blue py-3 px-6 rounded-md ease-out duration-200 hover:bg-blue-dark mt-7.5"
-          >
-            <Link href="/checkout">
-            Process to Checkout
-            </Link>
-          </button>
+          <Link href="/checkout" onClick={handleCheckoutClick}>
+            <button
+              type="button"
+              className="w-full flex justify-center font-medium text-white bg-blue py-3 px-6 rounded-md ease-out duration-200 hover:bg-blue-dark mt-7.5"
+            >
+              Process to Checkout
+            </button>
+          </Link>
         </div>
       </div>
     </div>
