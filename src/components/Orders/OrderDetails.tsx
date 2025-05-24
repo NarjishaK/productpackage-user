@@ -15,10 +15,6 @@ const OrderDetails = ({ orderItem }: any) => {
           <p className="text-custom-sm text-dark">Status</p>
         </div>
 
-        {/* <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">Title</p>
-        </div> */}
-
         <div className="min-w-[113px]">
           <p className="text-custom-sm text-dark">Total</p>
         </div>

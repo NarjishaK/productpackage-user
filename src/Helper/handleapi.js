@@ -2,6 +2,14 @@ import axios from "axios";
 export const BASE_URL ="http://localhost:3001";
 // export const BASE_URL ="https://api.sstappstore.in";
 
+//get order by customerId
+export const fetchOrders = async (customerId) => {
+    const response = await axios.get(`${BASE_URL}/customerorder/${customerId}`);
+    return response.data;
+}
+
+//create order
+
 export const createOrder = async (orderData) => {
   try {
     const response = await fetch(`${BASE_URL}/customerorder/create`, {
