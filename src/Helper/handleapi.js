@@ -1,6 +1,28 @@
 import axios from "axios";
-// export const BASE_URL ="http://localhost:3001";
-export const BASE_URL ="https://api.sstappstore.in";
+export const BASE_URL ="http://localhost:3001";
+// export const BASE_URL ="https://api.sstappstore.in";
+
+export const createOrder = async (orderData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/customerorder/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create order');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating order:', error);
+    throw error;
+  }
+};
 //getPackageWithProducts
 export const fetchPackageWithProducts = async (packageId) => {
   try {

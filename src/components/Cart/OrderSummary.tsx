@@ -1,9 +1,11 @@
 // Updated OrderSummary Component
+import Link from "next/link";
 import React from "react";
 
 const OrderSummary = ({ cartItems, totalPrice, useCustomerCart }) => {
   return (
-    <div className="lg:max-w-[455px] w-full">
+    // <div className="lg:max-w-[455px] w-full">
+    <div className="lg:max-w-[670px] w-full">
       {/* <!-- order list box --> */}
       <div className="bg-white shadow-1 rounded-[10px]">
         <div className="border-b border-gray-3 py-5 px-4 sm:px-8.5">
@@ -61,7 +63,9 @@ const OrderSummary = ({ cartItems, totalPrice, useCustomerCart }) => {
             type="submit"
             className="w-full flex justify-center font-medium text-white bg-blue py-3 px-6 rounded-md ease-out duration-200 hover:bg-blue-dark mt-7.5"
           >
+            <Link href="/checkout">
             Process to Checkout
+            </Link>
           </button>
         </div>
       </div>

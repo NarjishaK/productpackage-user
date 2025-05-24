@@ -82,16 +82,14 @@ const Cart = () => {
                       <SingleItem key={key} item={item} />
                     ))
                   ) : (
-                    <>
-                    {/* <EmptyCart /> */}
-                    </>
+                    <> </>
                   )}
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-7.5 xl:gap-11 mt-9">
-              <Discount />
+              {/* <Discount /> */}
               {/* Pass the cart data to OrderSummary */}
               <OrderSummary 
                 cartItems={displayedItems} 

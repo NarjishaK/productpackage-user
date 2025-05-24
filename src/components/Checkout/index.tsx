@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import Login from "./Login";
 import Shipping from "./Shipping";
@@ -7,8 +7,54 @@ import ShippingMethod from "./ShippingMethod";
 import PaymentMethod from "./PaymentMethod";
 import Coupon from "./Coupon";
 import Billing from "./Billing";
+import { useAppSelector } from "@/redux/store";
+import { fetchCartItems } from "@/Helper/handleapi";
+import { selectTotalPrice } from "@/redux/features/cart-slice";
+import { useSelector } from "react-redux";
+import { BASE_URL } from "@/Helper/handleapi";
 
 const Checkout = () => {
+  const guestCartItems = useAppSelector((state) => state.cartReducer.items);
+  const guestTotalPrice = useSelector(selectTotalPrice);
+
+  const [customerCartItems, setCustomerCartItems] = useState([]);
+  const [useCustomerCart, setUseCustomerCart] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [customerTotalPrice, setCustomerTotalPrice] = useState(0);
+
+  useEffect(() => {
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : null;
+    const customerId = customerDetails?._id || customerDetails?.id;
+
+    if (customerId) {
+      setUseCustomerCart(true);
+      fetchCartItems(customerId)
+        .then((data) => {
+          setCustomerCartItems(data);
+          const total = data.reduce(
+            (acc, item) => acc + item?.packageId?.price * item.quantity,
+            0
+          );
+          setCustomerTotalPrice(total);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch customer cart", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setUseCustomerCart(false);
+      setLoading(false);
+    }
+  }, []);
+
+  const displayedItems = useCustomerCart ? customerCartItems : guestCartItems;
+  const totalPrice = useCustomerCart ? customerTotalPrice : guestTotalPrice;
+  const shippingFee = 15.00;
+  const finalTotal = totalPrice + shippingFee;
+
   return (
     <>
       <Breadcrumb title={"Checkout"} pages={["checkout"]} />
@@ -68,57 +114,76 @@ const Checkout = () => {
                       </div>
                     </div>
 
-                    {/* <!-- product item --> */}
-                    <div className="flex items-center justify-between py-5 border-b border-gray-3">
-                      <div>
-                        <p className="text-dark">iPhone 14 Plus , 6/128GB</p>
+                    {/* <!-- Dynamic product items --> */}
+                    {loading ? (
+                      <div className="flex items-center justify-center py-5">
+                        <p className="text-dark">Loading order details...</p>
                       </div>
-                      <div>
-                        <p className="text-dark text-right">₹899.00</p>
+                    ) : displayedItems.length > 0 ? (
+                      displayedItems.map((item, key) => (
+                        <div key={key} className="flex items-center justify-between py-5 border-b border-gray-3">
+                          <div>
+                            <p className="text-dark">
+                              {useCustomerCart 
+                                ? item.packageId?.packagename 
+                                : item.packagename
+                              }
+                              {` x ${item.quantity}`}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-dark text-right">
+                              ₹{useCustomerCart 
+                                ? (item.packageId?.price * item.quantity).toFixed(2)
+                                : (item.price * item.quantity).toFixed(2)
+                              }
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex items-center justify-center py-5">
+                        <p className="text-dark">No items in cart</p>
                       </div>
-                    </div>
+                    )}
 
-                    {/* <!-- product item --> */}
-                    <div className="flex items-center justify-between py-5 border-b border-gray-3">
-                      <div>
-                        <p className="text-dark">Asus RT Dual Band Router</p>
+                    {/* <!-- Subtotal --> */}
+                    {displayedItems.length > 0 && (
+                      <div className="flex items-center justify-between py-5 border-b border-gray-3">
+                        <div>
+                          <p className="text-dark">Subtotal</p>
+                        </div>
+                        <div>
+                          <p className="text-dark text-right">₹{totalPrice.toFixed(2)}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-dark text-right">₹129.00</p>
-                      </div>
-                    </div>
+                    )}
 
-                    {/* <!-- product item --> */}
-                    <div className="flex items-center justify-between py-5 border-b border-gray-3">
-                      <div>
-                        <p className="text-dark">Havit HV-G69 USB Gamepad</p>
+                    {/* <!-- shipping fee --> */}
+                    {displayedItems.length > 0 && (
+                      <div className="flex items-center justify-between py-5 border-b border-gray-3">
+                        <div>
+                          <p className="text-dark">Shipping Fee</p>
+                        </div>
+                        <div>
+                          <p className="text-dark text-right">₹{shippingFee.toFixed(2)}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-dark text-right">₹29.00</p>
-                      </div>
-                    </div>
-
-                    {/* <!-- product item --> */}
-                    <div className="flex items-center justify-between py-5 border-b border-gray-3">
-                      <div>
-                        <p className="text-dark">Shipping Fee</p>
-                      </div>
-                      <div>
-                        <p className="text-dark text-right">₹15.00</p>
-                      </div>
-                    </div>
+                    )}
 
                     {/* <!-- total --> */}
-                    <div className="flex items-center justify-between pt-5">
-                      <div>
-                        <p className="font-medium text-lg text-dark">Total</p>
+                    {displayedItems.length > 0 && (
+                      <div className="flex items-center justify-between pt-5">
+                        <div>
+                          <p className="font-medium text-lg text-dark">Total</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-lg text-dark text-right">
+                           ₹{finalTotal.toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-lg text-dark text-right">
-                         ₹1072.00
-                        </p>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
 
@@ -135,8 +200,9 @@ const Checkout = () => {
                 <button
                   type="submit"
                   className="w-full flex justify-center font-medium text-white bg-blue py-3 px-6 rounded-md ease-out duration-200 hover:bg-blue-dark mt-7.5"
+                  disabled={loading || displayedItems.length === 0}
                 >
-                  Process to Checkout
+                  {loading ? "Loading..." : displayedItems.length === 0 ? "Cart is Empty" : "Process to Checkout"}
                 </button>
               </div>
             </div>

@@ -23,32 +23,6 @@ const Billing = () => {
             />
           </div>
 
-          <div className="w-full">
-            <label htmlFor="lastName" className="block mb-2.5">
-              Last Name <span className="text-red">*</span>
-            </label>
-
-            <input
-              type="text"
-              name="lastName"
-              id="lastName"
-              placeholder="Deo"
-              className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-            />
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <label htmlFor="companyName" className="block mb-2.5">
-            Company Name
-          </label>
-
-          <input
-            type="text"
-            name="companyName"
-            id="companyName"
-            className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-          />
         </div>
 
         <div className="mb-5">
@@ -124,12 +98,12 @@ const Billing = () => {
 
         <div className="mb-5">
           <label htmlFor="country" className="block mb-2.5">
-            Country
+            State
           </label>
 
           <input
             type="text"
-            name="country"
+            name="state"
             id="country"
             className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
           />
