@@ -2,27 +2,14 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
-import CategoryDropdown from "./CategoryDropdown";
-import GenderDropdown from "./GenderDropdown";
-import SizeDropdown from "./SizeDropdown";
-import ColorsDropdwon from "./ColorsDropdwon";
-import PriceDropdown from "./PriceDropdown";
-import shopData from "../Shop/shopData";
 import SingleGridItem from "../Shop/SingleGridItem";
 import SingleListItem from "../Shop/SingleListItem";
+import { fetchAllPackageswithProducts } from "@/Helper/handleapi";
 
 const ShopWithSidebar = () => {
   const [productStyle, setProductStyle] = useState("grid");
   const [productSidebar, setProductSidebar] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
-
-  const handleStickyMenu = () => {
-    if (window.scrollY >= 80) {
-      setStickyMenu(true);
-    } else {
-      setStickyMenu(false);
-    }
-  };
 
   const options = [
     { label: "Latest Pacakges", value: "0" },
@@ -30,57 +17,18 @@ const ShopWithSidebar = () => {
     { label: "Old Packages", value: "2" },
   ];
 
-  const categories = [
-    {
-      name: "Desktop",
-      products: 10,
-      isRefined: true,
-    },
-    {
-      name: "Laptop",
-      products: 12,
-      isRefined: false,
-    },
-    {
-      name: "Monitor",
-      products: 30,
-      isRefined: false,
-    },
-    {
-      name: "UPS",
-      products: 23,
-      isRefined: false,
-    },
-    {
-      name: "Phone",
-      products: 10,
-      isRefined: false,
-    },
-    {
-      name: "Watch",
-      products: 13,
-      isRefined: false,
-    },
-  ];
-
-  const genders = [
-    {
-      name: "Men",
-      products: 10,
-    },
-    {
-      name: "Women",
-      products: 23,
-    },
-    {
-      name: "Unisex",
-      products: 8,
-    },
-  ];
-
+ const [packages, setPackages] = useState([]);
   useEffect(() => {
-    window.addEventListener("scroll", handleStickyMenu);
 
+    fetchAllPackageswithProducts()
+      .then((data) => {
+        setPackages(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching packages:", error);
+      });
+  }, []);
+  useEffect(() => {
     // closing sidebar while clicking outside
     function handleClickOutside(event) {
       if (!event.target.closest(".sidebar-content")) {
@@ -209,7 +157,7 @@ const ShopWithSidebar = () => {
                     : "flex flex-col gap-7.5"
                 }`}
               >
-                {shopData.map((item, key) =>
+                {packages.map((item, key) =>
                   productStyle === "grid" ? (
                     <SingleGridItem item={item} key={key} />
                   ) : (
@@ -220,7 +168,6 @@ const ShopWithSidebar = () => {
 
               {/* <!-- Products Pagination End --> */}
             </div>
-            {/* // <!-- Content End --> */}
           </div>
         </div>
       </section>
