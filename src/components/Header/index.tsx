@@ -8,16 +8,15 @@ import { useAppSelector } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { selectTotalPrice } from "@/redux/features/cart-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
-import { BASE_URL, fetchCartItems, fetchLogo } from "@/Helper/handleapi";
+import { BASE_URL, fetchCartItems, fetchLogo, fetchAllPackageswithProducts } from "@/Helper/handleapi";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
   const { openCartModal } = useCartModalContext();
-
+  const [packages, setPackages] = useState([]);
   const product = useAppSelector((state) => state.cartReducer.items);
-  // const totalPrice = useSelector(selectTotalPrice);
   const [logo, setLogo] = useState([]);
 
   useEffect(() => {
@@ -28,7 +27,16 @@ const Header = () => {
       .catch((error) => {
         console.error("Error fetching logo:", error);
       });
+
+    fetchAllPackageswithProducts()
+      .then((data) => {
+        setPackages(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching packages:", error);
+      });
   }, []);
+
   const handleOpenCartModal = () => {
     openCartModal();
   };
@@ -46,11 +54,137 @@ const Header = () => {
     window.addEventListener("scroll", handleStickyMenu);
   });
 
+  // Get ALL vendors from ALL packages and collect their addresses
+  const getAllVendorsFromPackages = () => {
+    const allVendors = new Map(); // Use Map to store unique vendors by ID
+    
+    packages.forEach((packageItem) => {
+      const vendor = packageItem?.category?.vendor;
+      if (vendor && vendor._id) {
+        // Store the complete vendor object
+        allVendors.set(vendor._id, vendor);
+      }
+    });
+    
+    return Array.from(allVendors.values());
+  };
+
+  // Updated function to get all unique districts from ALL vendors
+  const getUniqueDistricts = () => {
+    const districts = new Set();
+    const allVendors = getAllVendorsFromPackages();
+    
+    console.log('Total unique vendors found:', allVendors.length);
+    
+    allVendors.forEach((vendor) => {
+      console.log(`Processing vendor: ${vendor.name} (ID: ${vendor._id})`);
+      
+      if (vendor.address && Array.isArray(vendor.address)) {
+        console.log(`  - Found ${vendor.address.length} addresses for ${vendor.name}`);
+        
+        vendor.address.forEach((addr, index) => {
+          console.log(`    Address ${index + 1}:`, {
+            district: addr.district,
+            state: addr.state,
+            addressline: addr.addressline
+          });
+          
+          if (addr.district && addr.district.trim() !== "") {
+            districts.add(addr.district.trim());
+          }
+        });
+      } else {
+        console.log(`  - No addresses found for ${vendor.name}`);
+      }
+    });
+    
+    console.log('All unique districts:', Array.from(districts));
+    return Array.from(districts).sort();
+  };
+
+  // Get complete address information from ALL vendors
+  const getAllVendorAddresses = () => {
+    const addresses = [];
+    const allVendors = getAllVendorsFromPackages();
+    
+    allVendors.forEach((vendor) => {
+      if (vendor.address && Array.isArray(vendor.address)) {
+        vendor.address.forEach((addr) => {
+          addresses.push({
+            vendorName: vendor.name,
+            vendorId: vendor._id,
+            district: addr.district || '',
+            state: addr.state || '',
+            addressline: addr.addressline || '',
+            post: addr.post || '',
+            country: addr.country || '',
+            location: addr.location || '',
+            addressId: addr._id
+          });
+        });
+      }
+    });
+    
+    console.log('All vendor addresses:', addresses);
+    return addresses;
+  };
+
+  // Get unique locations (district + state combination) from ALL vendors
+  const getUniqueLocations = () => {
+    const locations = new Set();
+    const allVendors = getAllVendorsFromPackages();
+    
+    allVendors.forEach((vendor) => {
+      if (vendor.address && Array.isArray(vendor.address)) {
+        vendor.address.forEach((addr) => {
+          if (addr.district || addr.state) {
+            const locationString = [addr.district, addr.state].filter(Boolean).join(', ');
+            if (locationString) {
+              locations.add(locationString);
+            }
+          }
+        });
+      }
+    });
+    
+    return Array.from(locations).sort();
+  };
+
+  // Get all unique states from ALL vendors
+  const getUniqueStates = () => {
+    const states = new Set();
+    const allVendors = getAllVendorsFromPackages();
+    
+    allVendors.forEach((vendor) => {
+      if (vendor.address && Array.isArray(vendor.address)) {
+        vendor.address.forEach((addr) => {
+          if (addr.state && addr.state.trim() !== "") {
+            states.add(addr.state.trim());
+          }
+        });
+      }
+    });
+    
+    return Array.from(states).sort();
+  };
+
+  // Create options for dropdown - Multiple approaches available
   const options = [
     { label: "All Location", value: "0" },
-    { label: "Thrissur", value: "1" },
-    { label: "Kozhikode", value: "2" },
+    
+    // Option 1: Just unique districts from ALL vendors
+    ...getUniqueDistricts().map((district) => ({
+      label: district,
+      value: district
+    }))
+    
+    // Option 2: District + State combination (uncomment to use instead of Option 1)
+    // ...getUniqueLocations().map((location) => ({
+    //   label: location,
+    //   value: location
+    // }))
   ];
+
   const [customerName, setCustomerName] = useState(null);
 
   useEffect(() => {
@@ -59,52 +193,55 @@ const Header = () => {
       if (storedCustomer) {
         try {
           const parsed = JSON.parse(storedCustomer);
-          setCustomerName(parsed.name); // Adjust the key as per your stored object
+          setCustomerName(parsed.name);
         } catch (e) {
           console.error("Error parsing customerDetails from localStorage:", e);
         }
       }
     }
   }, []);
-    const guestCartItems = useAppSelector((state) => state.cartReducer.items);
-    const guestTotalPrice = useSelector(selectTotalPrice);
-  
-    const [customerCartItems, setCustomerCartItems] = useState([]);
-    const [useCustomerCart, setUseCustomerCart] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [customerTotalPrice, setCustomerTotalPrice] = useState(0);
-  
-    useEffect(() => {
-      const customerDetailsStr = localStorage.getItem("customerDetails");
-      const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : null;
-      const customerId = customerDetails?._id || customerDetails?.id;
-  
-      if (customerId) {
-        setUseCustomerCart(true);
-        fetchCartItems(customerId)
-          .then((data) => {
-            setCustomerCartItems(data);
-            const total = data.reduce(
-              (acc, item) => acc + item?.packageId?.price * item.quantity,
-              0
-            );
-            setCustomerTotalPrice(total);
-          })
-          .catch((err) => {
-            console.error("Failed to fetch customer cart", err);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      } else {
-        setUseCustomerCart(false);
-        setLoading(false);
-      }
-    }, []);
-  
-    const displayedItems = useCustomerCart ? customerCartItems : guestCartItems;
-    const totalPrice = useCustomerCart ? customerTotalPrice : guestTotalPrice;
+
+  const guestCartItems = useAppSelector((state) => state.cartReducer.items);
+  const guestTotalPrice = useSelector(selectTotalPrice);
+
+  const [customerCartItems, setCustomerCartItems] = useState([]);
+  const [useCustomerCart, setUseCustomerCart] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [customerTotalPrice, setCustomerTotalPrice] = useState(0);
+
+  useEffect(() => {
+    const customerDetailsStr = localStorage.getItem("customerDetails");
+    const customerDetails = customerDetailsStr ? JSON.parse(customerDetailsStr) : null;
+    const customerId = customerDetails?._id || customerDetails?.id;
+
+    if (customerId) {
+      setUseCustomerCart(true);
+      fetchCartItems(customerId)
+        .then((data) => {
+          setCustomerCartItems(data);
+          const total = data.reduce(
+            (acc, item) => acc + item?.packageId?.price * item.quantity,
+            0
+          );
+          setCustomerTotalPrice(total);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch customer cart", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setUseCustomerCart(false);
+      setLoading(false);
+    }
+  }, []);
+
+  const displayedItems = useCustomerCart ? customerCartItems : guestCartItems;
+  const totalPrice = useCustomerCart ? customerTotalPrice : guestTotalPrice;
   const targetHref = customerName ? "/my-account" : "/signin";
+
+
   return (
     <header
       className={`fixed left-0 top-0 w-full z-9999 bg-white transition-all ease-in-out duration-300 ${
@@ -217,7 +354,7 @@ const Header = () => {
 
             <div className="flex w-full lg:w-auto justify-between items-center gap-5">
               <div className="flex items-center gap-5">
-               <Link href={targetHref}  className="flex items-center gap-2.5">
+                <Link href={targetHref} className="flex items-center gap-2.5">
                   <svg
                     width="24"
                     height="24"
@@ -388,9 +525,6 @@ const Header = () => {
               </nav>
               {/* //   <!-- Main Nav End --> */}
             </div>
-            {/* // <!--=== Main Nav End ===--> */}
-
-            {/* // <!--=== Nav Right Start ===--> */}
             <div className="hidden xl:block">
               <ul className="flex items-center gap-5.5">
               </ul>

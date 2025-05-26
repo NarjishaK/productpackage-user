@@ -89,3 +89,10 @@ export const fetchProducts = async () => {
     const response = await axios.get(`${BASE_URL}/product`);
     return response.data;
 }
+
+
+//fetch All Package with all Products and categories and vendor details
+export const fetchAllPackageswithProducts = async () => {
+    const response = await axios.get(`${BASE_URL}/subcategory/allpackage`);
+    return response.data;
+}
