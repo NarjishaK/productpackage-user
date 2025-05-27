@@ -11,6 +11,7 @@ const Signin = () => {
     email: "",
     password: "",
   });
+
   // Login function
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,6 +24,7 @@ const Signin = () => {
       });
       return;
     }
+
     try {
       const response = await loginCustomer({
         email: values.email,
@@ -37,6 +39,27 @@ const Signin = () => {
         );
         window.location.href = "/";
       } else if (response.message === "Your account is blocked") {
+        Swal.fire({
+          icon: "error",
+          title: "Account Blocked",
+          text: "Your account has been blocked. Please contact support.",
+        });
+      } else if (response.emailNotVerified) {
+        // Handle email not verified case
+        Swal.fire({
+          icon: "warning",
+          title: "Email Not Verified",
+          text: response.message || "Please verify your email before logging in. Check your Email for the verification link.",
+          showCancelButton: true,
+          confirmButtonText: "OKAY",
+          cancelButtonText: "OK",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // You can add logic here to resend verification email
+            // For example: resendVerificationEmail(values.email);
+            console.log("Resend verification email for:", values.email);
+          }
+        });
       } else {
         Swal.fire({
           icon: "error",
@@ -45,12 +68,31 @@ const Signin = () => {
         });
       }
     } catch (err) {
-      if (err.response && err.response.data.message) {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: err.response.data.message,
-        });
+      if (err.response && err.response.data) {
+        const { emailNotVerified, message } = err.response.data;
+        
+        if (emailNotVerified) {
+          // Handle email not verified from error response
+          Swal.fire({
+            icon: "warning",
+            title: "Email Not Verified",
+            text: message || "Please verify your email before logging in. Check your Email for the verification link.",
+            showCancelButton: true,
+            confirmButtonText: "OKAY",
+            cancelButtonText: "OK",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // You can add logic here to resend verification email
+              console.log("Resend verification email for:", values.email);
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: message || "Login failed. Please try again.",
+          });
+        }
       } else {
         Swal.fire({
           icon: "error",
@@ -60,6 +102,7 @@ const Signin = () => {
       }
     }
   };
+
   return (
     <>
       <Breadcrumb title={"Signin"} pages={["Signin"]} />
