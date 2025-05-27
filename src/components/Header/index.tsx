@@ -74,21 +74,9 @@ const Header = () => {
     const districts = new Set();
     const allVendors = getAllVendorsFromPackages();
     
-    console.log('Total unique vendors found:', allVendors.length);
-    
     allVendors.forEach((vendor) => {
-      console.log(`Processing vendor: ${vendor.name} (ID: ${vendor._id})`);
-      
       if (vendor.address && Array.isArray(vendor.address)) {
-        console.log(`  - Found ${vendor.address.length} addresses for ${vendor.name}`);
-        
         vendor.address.forEach((addr, index) => {
-          console.log(`    Address ${index + 1}:`, {
-            district: addr.district,
-            state: addr.state,
-            addressline: addr.addressline
-          });
-          
           if (addr.district && addr.district.trim() !== "") {
             districts.add(addr.district.trim());
           }
@@ -97,8 +85,6 @@ const Header = () => {
         console.log(`  - No addresses found for ${vendor.name}`);
       }
     });
-    
-    console.log('All unique districts:', Array.from(districts));
     return Array.from(districts).sort();
   };
 
@@ -113,11 +99,6 @@ const Header = () => {
       value: district
     }))
     
-    // Option 2: District + State combination (uncomment to use instead of Option 1)
-    // ...getUniqueLocations().map((location) => ({
-    //   label: location,
-    //   value: location
-    // }))
   ];
 
   const [customerName, setCustomerName] = useState(null);
