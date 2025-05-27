@@ -26,35 +26,54 @@ const ShopWithSidebar = () => {
   }, []);
 
   // Filter packages based on selected location and search query
-  useEffect(() => {
-    let filtered = [...allPackages];
+// Updated filtering logic for ShopWithSidebar component
+// Replace the existing useEffect that handles filtering
 
-    // Filter by location
-    if (selectedLocation && selectedLocation !== "0") {
-      filtered = filtered.filter((packageItem) => {
-        const vendor = packageItem?.category?.vendor;
-        if (!vendor || !vendor.address) return false;
-        
-        return vendor.address.some((addr: any) => 
-          addr.district && addr.district.trim().toLowerCase() === selectedLocation.toLowerCase()
-        );
-      });
-    }
+useEffect(() => {
+  let filtered = [...allPackages];
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((packageItem) => 
-        packageItem.name?.toLowerCase().includes(query) ||
+  // Filter by location
+  if (selectedLocation && selectedLocation !== "0") {
+    filtered = filtered.filter((packageItem) => {
+      const vendor = packageItem?.category?.vendor;
+      if (!vendor || !vendor.address) return false;
+      
+      return vendor.address.some((addr) => 
+        addr.district && addr.district.trim().toLowerCase() === selectedLocation.toLowerCase()
+      );
+    });
+  }
+
+  // Filter by search query
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter((packageItem) => {
+      // Check package name, description, category name, vendor name
+      const basicMatch = 
+        packageItem.packagename?.toLowerCase().includes(query) ||
         packageItem.description?.toLowerCase().includes(query) ||
         packageItem.category?.name?.toLowerCase().includes(query) ||
-        packageItem.category?.vendor?.name?.toLowerCase().includes(query)
-      );
-    }
-    
-    setFilteredPackages(filtered);
-  }, [allPackages, selectedLocation, searchQuery]);
+        packageItem.category?.vendor?.name?.toLowerCase().includes(query);
 
+      // Check vendor address districts
+      const vendor = packageItem?.category?.vendor;
+      const districtMatch = vendor?.address?.some((addr) =>
+        addr.district?.toLowerCase().includes(query)
+      ) || false;
+
+      // Check vendor address states, countries, or address lines if needed
+      const addressMatch = vendor?.address?.some((addr) =>
+        addr.state?.toLowerCase().includes(query) ||
+        addr.country?.toLowerCase().includes(query) ||
+        addr.addressline?.toLowerCase().includes(query)
+      ) || false;
+
+      return basicMatch || districtMatch || addressMatch;
+    });
+  }
+  
+  setFilteredPackages(filtered);
+}, [allPackages, selectedLocation, searchQuery]);
   useEffect(() => {
     // closing sidebar while clicking outside
     function handleClickOutside(event: MouseEvent) {
