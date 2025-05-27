@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import CustomSelect from "./CustomSelect";
 import { menuData } from "./menuData";
 import Dropdown from "./Dropdown";
@@ -8,6 +9,7 @@ import { useAppSelector } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { selectTotalPrice } from "@/redux/features/cart-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
+import { useLocationContext } from "@/app/context/locationcontext";
 import {
   BASE_URL,
   fetchCartItems,
@@ -16,14 +18,16 @@ import {
 } from "@/Helper/handleapi";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
+
 const Header = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
   const { openCartModal } = useCartModalContext();
+  const { selectedLocation, setSelectedLocation, searchQuery, setSearchQuery } = useLocationContext();
   const [packages, setPackages] = useState([]);
   const product = useAppSelector((state) => state.cartReducer.items);
   const [logo, setLogo] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetchLogo()
@@ -58,16 +62,18 @@ const Header = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyMenu);
-  });
+    return () => {
+      window.removeEventListener("scroll", handleStickyMenu);
+    };
+  }, []);
 
   // Get ALL vendors from ALL packages and collect their addresses
   const getAllVendorsFromPackages = () => {
-    const allVendors = new Map(); // Use Map to store unique vendors by ID
+    const allVendors = new Map();
 
     packages.forEach((packageItem) => {
       const vendor = packageItem?.category?.vendor;
       if (vendor && vendor._id) {
-        // Store the complete vendor object
         allVendors.set(vendor._id, vendor);
       }
     });
@@ -82,30 +88,44 @@ const Header = () => {
 
     allVendors.forEach((vendor) => {
       if (vendor.address && Array.isArray(vendor.address)) {
-        vendor.address.forEach((addr, index) => {
+        vendor.address.forEach((addr) => {
           if (addr.district && addr.district.trim() !== "") {
             districts.add(addr.district.trim());
           }
         });
-      } else {
-        console.log(`  - No addresses found for ${vendor.name}`);
       }
     });
     return Array.from(districts).sort();
   };
 
-  // Create options for dropdown - Multiple approaches available
+  // Create options for dropdown
   const options = [
     { label: "All Location", value: "0" },
-
-    // Option 1: Just unique districts from ALL vendors
     ...getUniqueDistricts().map((district) => ({
       label: district,
       value: district,
     })),
   ];
 
-  const [customerName, setCustomerName] = useState(null);
+  // Handle location change
+  const handleLocationChange = (location: string) => {
+    setSelectedLocation(location);
+    // Navigate to shop page when location is selected and not already there
+    if (window.location.pathname !== '/shop-with-sidebar') {
+      router.push('/shop-with-sidebar');
+    }
+  };
+
+  // Handle search
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to shop page with search
+      router.push('/shop-with-sidebar');
+    }
+  };
+
+  const [customerName, setCustomerName] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -189,9 +209,11 @@ const Header = () => {
             ))}
 
             <div className="max-w-[475px] w-full">
-              <form>
+              <form onSubmit={handleSearch}>
                 <div className="flex items-center">
-                  <CustomSelect options={options} />
+                  <CustomSelect 
+                    options={options} 
+                  />
 
                   <div className="relative max-w-[333px] sm:min-w-[333px] w-full">
                     {/* <!-- divider --> */}
@@ -208,6 +230,7 @@ const Header = () => {
                     />
 
                     <button
+                      type="submit"
                       id="search-btn"
                       aria-label="Search"
                       className="flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 ease-in duration-200 hover:text-blue"

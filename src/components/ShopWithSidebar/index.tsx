@@ -5,33 +5,66 @@ import CustomSelect from "./CustomSelect";
 import SingleGridItem from "../Shop/SingleGridItem";
 import SingleListItem from "../Shop/SingleListItem";
 import { fetchAllPackageswithProducts } from "@/Helper/handleapi";
+import { useLocationContext } from "@/app/context/locationcontext";
 
 const ShopWithSidebar = () => {
   const [productStyle, setProductStyle] = useState("grid");
   const [productSidebar, setProductSidebar] = useState(false);
-  const [stickyMenu, setStickyMenu] = useState(false);
+  const [allPackages, setAllPackages] = useState([]);
+  const [filteredPackages, setFilteredPackages] = useState([]);
+  const { selectedLocation, searchQuery } = useLocationContext();
 
   const options = [
-    { label: "Latest Pacakges", value: "0" },
+    { label: "Latest Packages", value: "0" },
     { label: "Best Selling", value: "1" },
     { label: "Old Packages", value: "2" },
   ];
 
- const [packages, setPackages] = useState([]);
   useEffect(() => {
-
     fetchAllPackageswithProducts()
       .then((data) => {
-        setPackages(data);
+        setAllPackages(data);
+        setFilteredPackages(data);
       })
       .catch((error) => {
         console.error("Error fetching packages:", error);
       });
   }, []);
+
+  // Filter packages based on selected location and search query
+  useEffect(() => {
+    let filtered = [...allPackages];
+
+    // Filter by location
+    if (selectedLocation && selectedLocation !== "0") {
+      filtered = filtered.filter((packageItem) => {
+        const vendor = packageItem?.category?.vendor;
+        if (!vendor || !vendor.address) return false;
+        
+        return vendor.address.some((addr: any) => 
+          addr.district && addr.district.trim().toLowerCase() === selectedLocation.toLowerCase()
+        );
+      });
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((packageItem) => 
+        packageItem.name?.toLowerCase().includes(query) ||
+        packageItem.description?.toLowerCase().includes(query) ||
+        packageItem.category?.name?.toLowerCase().includes(query) ||
+        packageItem.category?.vendor?.name?.toLowerCase().includes(query)
+      );
+    }
+
+    setFilteredPackages(filtered);
+  }, [allPackages, selectedLocation, searchQuery]);
+
   useEffect(() => {
     // closing sidebar while clicking outside
-    function handleClickOutside(event) {
-      if (!event.target.closest(".sidebar-content")) {
+    function handleClickOutside(event: MouseEvent) {
+      if (!(event.target as Element).closest(".sidebar-content")) {
         setProductSidebar(false);
       }
     }
@@ -43,7 +76,7 @@ const ShopWithSidebar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  });
+  }, [productSidebar]);
 
   return (
     <>
@@ -54,7 +87,6 @@ const ShopWithSidebar = () => {
       <section className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28 bg-[#f3f4f6]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex gap-7.5">
-            {/* // <!-- Content Start --> */}
             <div className="w-full">
               <div className="rounded-lg bg-white shadow-1 pl-3 pr-2.5 py-2.5 mb-6">
                 <div className="flex items-center justify-between">
@@ -62,10 +94,9 @@ const ShopWithSidebar = () => {
                   <div className="flex flex-wrap items-center gap-4">
                     <CustomSelect options={options} />
 
-                    <p>
-                      Showing <span className="text-dark">9 of 50</span>{" "}
-                      Products
-                    </p>
+                     <p className="text-sm text-gray-600">
+                  Showing {filteredPackages.length} of {allPackages.length} packages
+                </p>
                   </div>
 
                   {/* <!-- top bar right --> */}
@@ -149,7 +180,7 @@ const ShopWithSidebar = () => {
                 </div>
               </div>
 
-              {/* <!-- Products Grid Tab Content Start --> */}
+              {/* Products Grid Tab Content Start */}
               <div
                 className={`${
                   productStyle === "grid"
@@ -157,12 +188,25 @@ const ShopWithSidebar = () => {
                     : "flex flex-col gap-7.5"
                 }`}
               >
-                {packages.map((item, key) =>
-                  productStyle === "grid" ? (
-                    <SingleGridItem item={item} key={key} />
-                  ) : (
-                    <SingleListItem item={item} key={key} />
+                {filteredPackages.length > 0 ? (
+                  filteredPackages.map((item, key) =>
+                    productStyle === "grid" ? (
+                      <SingleGridItem item={item} key={key} />
+                    ) : (
+                      <SingleListItem item={item} key={key} />
+                    )
                   )
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-lg text-gray-600">
+                      No packages found matching your criteria.
+                    </p>
+                    {(selectedLocation !== "0" || searchQuery) && (
+                      <p className="text-sm text-gray-500 mt-2">
+                        Try adjusting your filters or search terms.
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
