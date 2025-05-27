@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import { Customersignup } from "@/Helper/handleapi";
-import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
 const Signup = () => {
@@ -15,6 +14,7 @@ const Signup = () => {
     phone: "",
     confirmPassword: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -22,14 +22,26 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (values.password !== values.confirmPassword) {
-      // alert("Passwords do not match.");
       Swal.fire({
         icon: "error",
         title: "Oops...",
         text: "Passwords do not match!",
       });
+      setIsLoading(false);
+      return;
+    }
+
+    // Basic password validation
+    if (values.password.length < 6) {
+      Swal.fire({
+        icon: "error",
+        title: "Weak Password",
+        text: "Password must be at least 6 characters long!",
+      });
+      setIsLoading(false);
       return;
     }
 
@@ -39,18 +51,43 @@ const Signup = () => {
 
       Swal.fire({
         icon: "success",
-        title: "Success!",
-        text: "Account created successfully!",
+        title: "Account Created!",
+        html: `
+          <p>Your account has been created successfully!</p>
+          <p><strong>Please check your email</strong> to verify your account.</p>
+          <p>You won't be able to sign in until you verify your email address.</p>
+        `,
+        confirmButtonText: "Got it!",
+        allowOutsideClick: false
+      }).then(() => {
+        // Reset form
+        setValues({
+          name: "",
+          email: "",
+          password: "",
+          phone: "",
+          confirmPassword: "",
+        });
+        // Redirect to a verification pending page or signin with message
+        window.location.href = "/verification";
       });
-      window.location.href = "/signin";
-      // Optionally, redirect or reset form
+
     } catch (err) {
       console.error(err);
+      
+      let errorMessage = "Something went wrong. Please try again.";
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
       Swal.fire({
         icon: "error",
         title: "Signup Failed",
-        text: "Something went wrong,Do not use a registered email and phone number. Please try again.",
+        text: errorMessage,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,7 +101,7 @@ const Signup = () => {
               <h2 className="font-semibold text-xl sm:text-2xl xl:text-heading-5 text-dark mb-1.5">
                 Create an Account
               </h2>
-              <p>Enter your detail below</p>
+              <p>Enter your details below to get started</p>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -80,7 +117,8 @@ const Signup = () => {
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   required
-                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5"
+                  disabled={isLoading}
+                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5 disabled:opacity-50"
                 />
               </div>
 
@@ -96,11 +134,13 @@ const Signup = () => {
                   onChange={handleChange}
                   placeholder="Enter your email"
                   required
-                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5"
+                  disabled={isLoading}
+                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5 disabled:opacity-50"
                 />
               </div>
+
               <div className="mb-5">
-                <label htmlFor="email" className="block mb-2.5">
+                <label htmlFor="phone" className="block mb-2.5">
                   Phone <span className="text-red">*</span>
                 </label>
                 <input
@@ -111,7 +151,8 @@ const Signup = () => {
                   onChange={handleChange}
                   placeholder="Enter your phone number"
                   required
-                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5"
+                  disabled={isLoading}
+                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5 disabled:opacity-50"
                 />
               </div>
 
@@ -125,9 +166,11 @@ const Signup = () => {
                   id="password"
                   value={values.password}
                   onChange={handleChange}
-                  placeholder="Enter your password"
+                  placeholder="Enter your password (min. 6 characters)"
                   required
-                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5"
+                  disabled={isLoading}
+                  // minLength="6"
+                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5 disabled:opacity-50"
                 />
               </div>
 
@@ -143,15 +186,27 @@ const Signup = () => {
                   onChange={handleChange}
                   placeholder="Re-type your password"
                   required
-                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5"
+                  disabled={isLoading}
+                  className="rounded-lg border border-gray-3 bg-gray-1 w-full py-3 px-5 disabled:opacity-50"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-dark text-white py-3 px-6 rounded-lg hover:bg-blue mt-7.5"
+                disabled={isLoading}
+                className="w-full bg-dark text-white py-3 px-6 rounded-lg hover:bg-blue mt-7.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                Create Account
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating Account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
               </button>
 
               <p className="text-center mt-6">
