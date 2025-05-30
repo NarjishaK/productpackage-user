@@ -1,6 +1,6 @@
 import axios from "axios";
-export const BASE_URL ="http://localhost:3001";
-// export const BASE_URL ="https://api.sstappstore.in";
+// export const BASE_URL ="http://localhost:3001";
+export const BASE_URL ="https://api.sstappstore.in";
 
 //get order by customerId
 export const fetchOrders = async (customerId) => {
@@ -68,8 +68,9 @@ export const Customersignup = async (data) => {
 
 //fetch all products
 export const fetchPackages = async () => {
-    const response = await axios.get(`${BASE_URL}/subcategory`);
-    return response.data;
+     const response = await axios.get(`${BASE_URL}/subcategory`);
+    return response.data.filter(pkg => pkg.isActive); // filter only active packages
+
 }
 
 //fetch all banners
