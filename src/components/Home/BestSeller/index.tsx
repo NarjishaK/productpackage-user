@@ -5,13 +5,13 @@ import SingleItem from "./SingleItem";
 import Image from "next/image";
 import Link from "next/link";
 import shopData from "@/components/Shop/shopData";
-import { fetchPackages } from "@/Helper/handleapi";
+import { fetchBestsellingPackages } from "@/Helper/handleapi";
 
 
 const BestSeller = () => {
     const [products, setProducts] =useState([]);
     useEffect(() => {
-      fetchPackages()
+      fetchBestsellingPackages()
         .then((data) => {
           setProducts(data);
         })
@@ -42,7 +42,7 @@ const BestSeller = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7.5">
           {/* <!-- Best Sellers item --> */}
-          {products.slice(1, 7).map((item, key) => (
+          {products.slice(0, 10).map((item, key) => (
             <SingleItem item={item} key={key} />
           ))}
         </div>

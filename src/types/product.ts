@@ -11,4 +11,9 @@ export type Product = {
     thumbnails: string[];
     previews: string[];
   };
+    packageDetails?: {
+    packagename?: string;
+    price?: number;
+    image?: string;
+  };
 };

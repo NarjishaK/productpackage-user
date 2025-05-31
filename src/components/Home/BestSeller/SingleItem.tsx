@@ -9,7 +9,8 @@ import { addItemToCart } from "@/redux/features/cart-slice";
 import Link from "next/link";
 import { BASE_URL } from "@/Helper/handleapi";
 
-const SingleItem = ({ item }: { item: Product }) => {
+
+const SingleItem = ({ item }: { item: Product, }) => {
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
   const [isCustomer, setIsCustomer] = useState(false);
@@ -78,6 +79,7 @@ const SingleItem = ({ item }: { item: Product }) => {
     );
   };
 
+
   return (
     <div className="group">
       <div className="relative overflow-hidden rounded-lg bg-[#F6F7FB]">
@@ -88,18 +90,18 @@ const SingleItem = ({ item }: { item: Product }) => {
                 pathname: `/shop-details/${item._id}`,
               }}
             >
-              {item.packagename}
+              {item?.packageDetails?.packagename}
             </Link>
           </h3>
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">
-            <span className="text-dark">₹{item.price}</span>
+            <span className="text-dark">₹{item?.packageDetails?.price}</span>
           </span>
         </div>
 
         <div className="flex justify-center items-center">
           <Link href={`shop-details/${item._id}`}>
-            <img src={`${BASE_URL}/images/${item.image}`} alt="" />
+            <img src={`${BASE_URL}/images/${item?.packageDetails?.image}`} alt="" />
           </Link>
         </div>
 

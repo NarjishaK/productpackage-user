@@ -30,10 +30,10 @@ const ShopDetails = () => {
       id: "tabTwo",
       title: "Additional Information",
     },
-    {
-      id: "tabThree",
-      title: "Reviews",
-    },
+    // {
+    //   id: "tabThree",
+    //   title: "Reviews",
+    // },
   ];
 
   const [product, setProduct] = useState(null);
@@ -477,7 +477,6 @@ const ShopDetails = () => {
                     </h2>
 
                     <div className="flex flex-col gap-6">
-                      {/* <!-- review item --> */}
                       <div className="rounded-xl bg-white shadow-1 p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                           <a href="#" className="flex items-center gap-4">
