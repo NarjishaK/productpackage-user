@@ -78,23 +78,6 @@ const handleAddToCart = async () => {
   }
 };
 
-// In CartSidebarModal.tsx - Add this useEffect
-
-// useEffect(() => {
-//   const handleCartUpdate = () => {
-//     if (useCustomerCart && customerId) {
-//       refreshCustomerCart();
-//     }
-//   };
-
-//   // Listen for cart update events
-//   window.addEventListener('cartUpdated', handleCartUpdate);
-
-//   return () => {
-//     window.removeEventListener('cartUpdated', handleCartUpdate);
-//   };
-// }, [useCustomerCart, customerId, refreshCustomerCart]);
-
   // Add to guest cart through Redux
   const addToGuestCart = () => {
     dispatch(
