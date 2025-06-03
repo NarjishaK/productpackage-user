@@ -7,9 +7,23 @@ import Link from "next/link";
 const SingleItem = ({ item, removeItemFromCart }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleRemoveFromCart = () => {
-    dispatch(removeItemFromCart(item.id));
-  };
+ const handleRemoveFromCart = async () => {
+   try {
+     // Call API to delete from customer cart if user is authenticated
+     const res = await fetch(`${BASE_URL}/customercart/${item._id}`, {
+       method: "DELETE",
+     });
+ 
+     if (!res.ok) {
+       throw new Error("Failed to delete item from customer cart");
+     }
+ 
+     // Update Redux store
+     dispatch(removeItemFromCart(item._id));
+   } catch (error) {
+     console.error("Error removing cart item:", error);
+   }
+ };
 
   return (
     <div className="flex items-center justify-between gap-5">
