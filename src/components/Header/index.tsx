@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CustomSelect from "./CustomSelect";
@@ -148,17 +148,36 @@ const Header = () => {
   const [useCustomerCart, setUseCustomerCart] = useState(false);
   const [loading, setLoading] = useState(true);
   const [customerTotalPrice, setCustomerTotalPrice] = useState(0);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+
+  // Create a function to refresh customer cart data
+  const refreshCustomerCart = useCallback(async () => {
+    if (customerId) {
+      try {
+        const data = await fetchCartItems(customerId);
+        setCustomerCartItems(data);
+        const total = data.reduce(
+          (acc, item) => acc + item?.packageId?.price * item.quantity,
+          0
+        );
+        setCustomerTotalPrice(total);
+      } catch (err) {
+        console.error("Failed to fetch customer cart", err);
+      }
+    }
+  }, [customerId]);
 
   useEffect(() => {
     const customerDetailsStr = localStorage.getItem("customerDetails");
     const customerDetails = customerDetailsStr
       ? JSON.parse(customerDetailsStr)
       : null;
-    const customerId = customerDetails?._id || customerDetails?.id;
+    const id = customerDetails?._id || customerDetails?.id;
 
-    if (customerId) {
+    if (id) {
+      setCustomerId(id);
       setUseCustomerCart(true);
-      fetchCartItems(customerId)
+      fetchCartItems(id)
         .then((data) => {
           setCustomerCartItems(data);
           const total = data.reduce(
@@ -179,9 +198,28 @@ const Header = () => {
     }
   }, []);
 
+  // Listen for cart updates using custom event
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      if (useCustomerCart && customerId) {
+        refreshCustomerCart();
+      }
+    };
+
+    // Listen for cart update events
+    window.addEventListener('cartUpdated', handleCartUpdate);
+
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [useCustomerCart, customerId, refreshCustomerCart]);
+
   const displayedItems = useCustomerCart ? customerCartItems : guestCartItems;
   const totalPrice = useCustomerCart ? customerTotalPrice : guestTotalPrice;
   const targetHref = customerName ? "/my-account" : "/signin";
+
+  // Calculate cart count properly
+  const cartCount = useCustomerCart ? customerCartItems.length : guestCartItems.length;
 
   return (
     <header
@@ -276,26 +314,25 @@ const Header = () => {
                   </div>
                 </Link>
 
-                <button
-                  onClick={handleOpenCartModal}
-                  className="flex items-center gap-2.5"
-                >
-                  <span className="inline-block relative">
-                    <i className="bi bi-cart-check text-2xl text-blue"></i>
-                    <span className="flex items-center justify-center font-medium text-2xs absolute -right-2 -top-1.5 bg-blue w-4.5 h-4.5 rounded-full text-white">
-                      {guestCartItems.length || customerCartItems.length}
-                    </span>
-                  </span>
-
-                  <div>
-                    <span className="block text-2xs text-dark-4 uppercase">
-                      cart
-                    </span>
-                    <p className="font-medium text-custom-sm text-dark">
-                      ₹{totalPrice}
-                    </p>
-                  </div>
-                </button>
+                   <button
+        onClick={handleOpenCartModal}
+        className="flex items-center gap-2.5"
+      >
+        <span className="inline-block relative">
+          <i className="bi bi-cart-check text-2xl text-blue"></i>
+          <span className="flex items-center justify-center font-medium text-2xs absolute -right-2 -top-1.5 bg-blue w-4.5 h-4.5 rounded-full text-white">
+            {cartCount}
+          </span>
+        </span>
+        <div>
+          <span className="block text-2xs text-dark-4 uppercase">
+            cart
+          </span>
+          <p className="font-medium text-custom-sm text-dark">
+            ₹{totalPrice}
+          </p>
+        </div>
+      </button>
               </div>
 
               {/* <!-- Hamburger Toggle BTN --> */}
