@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import {
   removeItemFromCart,
@@ -20,9 +20,30 @@ const CartSidebarModal = () => {
 
   const [customerCartItems, setCustomerCartItems] = useState([]);
   const [useCustomerCart, setUseCustomerCart] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [customerTotalPrice, setCustomerTotalPrice] = useState(0);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+
+  // Create a refresh function to fetch cart items
+  const refreshCustomerCart = useCallback(async () => {
+    if (customerId) {
+      setLoading(true);
+      try {
+        const data = await fetchCartItems(customerId);
+        setCustomerCartItems(data);
+        // Calculate total price
+        const total = data.reduce(
+          (acc, item) => acc + item?.packageId?.price * item.quantity,
+          0
+        );
+        setCustomerTotalPrice(total);
+      } catch (err) {
+        console.error("Failed to fetch customer cart", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [customerId]);
 
   useEffect(() => {
     const customerDetailsStr = localStorage.getItem("customerDetails");
@@ -30,11 +51,14 @@ const CartSidebarModal = () => {
       ? JSON.parse(customerDetailsStr)
       : null;
 
-    const customerId = customerDetails?._id || customerDetails?.id;
+    const id = customerDetails?._id || customerDetails?.id;
 
-    if (customerId) {
+    if (id) {
+      setCustomerId(id);
       setUseCustomerCart(true);
-      fetchCartItems(customerId)
+      
+      // Initial fetch
+      fetchCartItems(id)
         .then((data) => {
           setCustomerCartItems(data);
           // Assuming backend provides total, or you calculate it here:
@@ -55,6 +79,13 @@ const CartSidebarModal = () => {
       setLoading(false);
     }
   }, []);
+
+  // Refresh cart whenever modal opens (optional - you can remove this if not needed)
+  useEffect(() => {
+    if (isCartModalOpen && useCustomerCart && customerId) {
+      refreshCustomerCart();
+    }
+  }, [isCartModalOpen, useCustomerCart, customerId, refreshCustomerCart]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -122,6 +153,7 @@ const CartSidebarModal = () => {
                     key={key}
                     item={item}
                     removeItemFromCart={removeItemFromCart}
+                    // refreshCart={useCustomerCart ? refreshCustomerCart : null}
                   />
                 ))
               ) : (
