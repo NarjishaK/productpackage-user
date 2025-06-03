@@ -106,51 +106,42 @@ const ShopDetails = () => {
     getPackageProducts();
   }, [product?._id]);
 
-  const handleAddToCart = async () => {
-    if (!product) return;
-    
-    setIsAddingToCart(true);
-    
-    if (isCustomer && customerId) {
-      try {
-        // Make API call to add product to customer cart
-        const response = await fetch(`${BASE_URL}/customercart`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            customerId: customerId,
-            packageId: product._id,
-            quantity: quantity,
-          }),
-        });
+const handleAddToCart = async () => {
+  if (isCustomer && customerId) {
+    try {
+      // Make API call to add product to customer cart
+      const response = await fetch(`${BASE_URL}/customercart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerId: customerId,
+          packageId: product._id,
+          quantity: quantity,
+        }),
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to add to customer cart');
-        }
-
-        const result = await response.json();
-        console.log('Product added to customer cart successfully', result);
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Product added to cart successfully!',
-        })
-        
-      } catch (error) {
-        console.error('Error adding to customer cart:', error);
-        // Fallback to guest cart in case of API failure
-        addToGuestCart();
+      if (!response.ok) {
+        throw new Error('Failed to add to customer cart');
       }
-    } else {
-      // If no customer details, use guest cart
+
+      // Show success notification or feedback
+      console.log('Product added to customer cart successfully');
+      
+      // Trigger cart refresh using custom event
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      
+    } catch (error) {
+      console.error('Error adding to customer cart:', error);
+      // Fallback to guest cart in case of API failure
       addToGuestCart();
     }
-    
-    setIsAddingToCart(false);
-  };
+  } else {
+    // If no customer details, use guest cart
+    addToGuestCart();
+  }
+};
 
   // Add to guest cart through Redux
   const addToGuestCart = () => {
@@ -208,9 +199,9 @@ const ShopDetails = () => {
                       {product.packagename}
                     </h2>
 
-                    <div className="inline-flex font-medium text-custom-sm text-white bg-blue rounded py-0.5 px-2.5">
+                    {/* <div className="inline-flex font-medium text-custom-sm text-white bg-blue rounded py-0.5 px-2.5">
                       30% OFF
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-5.5 mb-4.5">

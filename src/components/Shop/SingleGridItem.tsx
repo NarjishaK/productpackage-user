@@ -35,38 +35,42 @@ const SingleGridItem = ({ item }: { item: Product }) => {
     }
   }, []);
   // add to cart
-  const handleAddToCart = async () => {
-    if (isCustomer && customerId) {
-      try {
-        // Make API call to add product to customer cart
-        const response = await fetch(`${BASE_URL}/customercart`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            customerId: customerId,
-            packageId: item._id,
-            quantity: 1,
-          }),
-        });
+const handleAddToCart = async () => {
+  if (isCustomer && customerId) {
+    try {
+      // Make API call to add product to customer cart
+      const response = await fetch(`${BASE_URL}/customercart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerId: customerId,
+          packageId: item._id,
+          quantity: 1,
+        }),
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to add to customer cart');
-        }
-
-        // Show success notification or feedback
-        console.log('Product added to customer cart successfully');
-      } catch (error) {
-        console.error('Error adding to customer cart:', error);
-        // Fallback to guest cart in case of API failure
-        addToGuestCart();
+      if (!response.ok) {
+        throw new Error('Failed to add to customer cart');
       }
-    } else {
-      // If no customer details, use guest cart
+
+      // Show success notification or feedback
+      console.log('Product added to customer cart successfully');
+      
+      // Trigger cart refresh using custom event
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      
+    } catch (error) {
+      console.error('Error adding to customer cart:', error);
+      // Fallback to guest cart in case of API failure
       addToGuestCart();
     }
-  };
+  } else {
+    // If no customer details, use guest cart
+    addToGuestCart();
+  }
+};
 
   // Add to guest cart through Redux
   const addToGuestCart = () => {
