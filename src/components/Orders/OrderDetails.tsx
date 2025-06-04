@@ -57,11 +57,11 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderItem }) => {
             <span className="text-lg font-medium text-red">
               {orderItem?.orderId}
             </span>
-            <span
+            {/* <span
               className={`inline-block text-sm py-1 px-3 rounded-full capitalize ${getStatusStyle(orderItem?.orderStatus)}`}
             >
               {orderItem?.orderStatus || "Unknown"}
-            </span>
+            </span> */}
           </div>
         </div>
 
@@ -74,15 +74,15 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderItem }) => {
             <div className="space-y-2">
               <div>
                 <span className="font-medium text-gray-600">Name: </span>
-                <span className="text-gray-800">{orderItem?.customerName || "N/A"}</span>
+                <span className="text-gray-800">{orderItem?.customerName || ""}</span>
               </div>
               <div>
                 <span className="font-medium text-gray-600">Email: </span>
-                <span className="text-gray-800">{orderItem?.email || "N/A"}</span>
+                <span className="text-gray-800">{orderItem?.email || ""}</span>
               </div>
               <div>
                 <span className="font-medium text-gray-600">Phone: </span>
-                <span className="text-gray-800">{orderItem?.phone || "N/A"}</span>
+                <span className="text-gray-800">{orderItem?.phone || ""}</span>
               </div>
             </div>
           </div>
@@ -97,14 +97,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderItem }) => {
                 <span className="text-gray-800">{formatDate(orderItem?.orderDate)}</span>
               </div>
               <div>
-                <span className="font-medium text-gray-600">Delivery Date: </span>
-                <span className="text-gray-800">
-                  {orderItem?.deliveryDate ? formatDate(orderItem.deliveryDate) : "Not scheduled"}
-                </span>
-              </div>
-              <div>
                 <span className="font-medium text-gray-600">Payment Method: </span>
-                <span className="text-gray-800">{orderItem?.paymentMethod || "N/A"}</span>
+                <span className="text-gray-800">{orderItem?.paymentMethod || ""}</span>
               </div>
               <div>
                 <span className="font-medium text-gray-600">Payment Status: </span>
@@ -125,14 +119,14 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderItem }) => {
           </h3>
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="space-y-2">
-              <div>{orderItem?.address || "N/A"}</div>
+              <div>{orderItem?.address || ""}</div>
               {orderItem?.address1 && <div>{orderItem.address1}</div>}
               <div className="flex gap-4">
-                <span>{orderItem?.city || "N/A"}</span>
-                <span>{orderItem?.state || "N/A"}</span>
-                <span>{orderItem?.Pincode || "N/A"}</span>
+                <span>{orderItem?.city || ""}</span>
+                <span>{orderItem?.state || ""}</span>
+                <span>{orderItem?.Pincode || ""}</span>
               </div>
-              <div>{orderItem?.country || "N/A"}</div>
+              <div>{orderItem?.country || ""}</div>
             </div>
           </div>
         </div>
@@ -158,10 +152,10 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderItem }) => {
                       {pkg?.packageDetails?.packagename || pkg?.title || "Unknown Package"}
                     </h4>
                     <p className="text-sm text-gray-600">
-                      Category: {pkg?.packageDetails?.category?.name || "N/A"}
+                      Quantity: {pkg?.packageDetails?.quantity || 1}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Quantity: {pkg?.packageDetails?.quantity || 1}
+                     Status: {pkg?.packageDetails?.deliveryStatus || "Not claimed"} 
                     </p>
                   </div>
                 </div>
@@ -210,7 +204,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderItem }) => {
         )}
 
         {/* Delivery Status */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-800 border-b border-gray-200 pb-2">
             Delivery Information
           </h3>
@@ -230,7 +224,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderItem }) => {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

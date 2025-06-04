@@ -58,13 +58,13 @@ const SingleOrder = ({ orderItem, smallView }: any) => {
             </p>
           </div>
 
-          <div className="min-w-[128px]">
+          {/* <div className="min-w-[128px]">
             <p
               className={`inline-block text-custom-sm py-0.5 px-2.5 rounded-[30px] capitalize ${getStatusStyle(orderItem.orderStatus)}`}
             >
               {orderItem.orderStatus}
             </p>
-          </div>
+          </div> */}
 
           <div className="min-w-[213px]">
             <div className="text-custom-sm text-dark flex flex-col gap-1">
@@ -104,7 +104,7 @@ const SingleOrder = ({ orderItem, smallView }: any) => {
                 {formatDate(orderItem.orderDate)}
               </p>
             </div>
-            <div>
+            {/* <div>
               <p className="text-custom-sm text-dark">
                 <span className="font-bold pr-2">Status:</span>
                 <span
@@ -113,7 +113,7 @@ const SingleOrder = ({ orderItem, smallView }: any) => {
                   {orderItem.orderStatus}
                 </span>
               </p>
-            </div>
+            </div> */}
             <div className="text-custom-sm text-dark">
               <span className="font-bold pr-2">Titles:</span>
               <div className="flex flex-col gap-1 pl-2">
