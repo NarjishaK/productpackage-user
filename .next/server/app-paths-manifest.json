@@ -1,9 +1,8 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/_not-found/page": "app/_not-found/page.js",
   "/(site)/page": "app/(site)/page.js",
   "/(site)/(pages)/signin/page": "app/(site)/(pages)/signin/page.js",
-  "/(site)/(pages)/signup/page": "app/(site)/(pages)/signup/page.js",
+  "/(site)/(pages)/shop-without-sidebar/page": "app/(site)/(pages)/shop-without-sidebar/page.js",
   "/(site)/(pages)/shop-details/[id]/page": "app/(site)/(pages)/shop-details/[id]/page.js",
-  "/(site)/(pages)/shop-without-sidebar/page": "app/(site)/(pages)/shop-without-sidebar/page.js"
+  "/(site)/(pages)/signup/page": "app/(site)/(pages)/signup/page.js"
 }
