@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { addItemToCart } from "@/redux/features/cart-slice";
@@ -11,12 +12,11 @@ const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
   const [quantity, setQuantity] = useState(1);
   const [packageProducts, setPackageProducts] = useState([]);
-  const [packageData, setPackageData] = useState(null); // Store full package data
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch<AppDispatch>();
+
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  
   // get the product data
   const product = useAppSelector((state) => state.quickViewReducer.value);
   const [isCustomer, setIsCustomer] = useState(false);
@@ -36,7 +36,6 @@ const QuickViewModal = () => {
       }
     }
   }, []);
-
   // add to cart
   const handleAddToCart = async () => {
     if (!product) return;
@@ -110,18 +109,11 @@ const QuickViewModal = () => {
       try {
         const data = await fetchPackageWithProducts(product._id);
         console.log("Package data:", data); // Debug log
-        
-        // Store the full package data
-        setPackageData(data);
 
-        if (data && data.products && data.products.length > 0) {
+        if (data && data.products) {
           setPackageProducts(data.products);
-        } else if (data && data.package && data.package.products) {
-          // Alternative structure check
-          setPackageProducts(data.package.products);
         } else {
           setPackageProducts([]);
-          console.log("No products found in package data");
         }
       } catch (error) {
         console.error("Failed to fetch package products:", error);
@@ -151,7 +143,6 @@ const QuickViewModal = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       setQuantity(1);
       setPackageProducts([]);
-      setPackageData(null);
       setError(null);
     };
   }, [isModalOpen, closeModal]);
@@ -160,24 +151,6 @@ const QuickViewModal = () => {
   if (!product) {
     return null;
   }
-
-  // Get package name from either product directly or packageData
-  const packageName = product.packagename || 
-                     product.packageDetails?.packagename || 
-                     packageData?.package?.packagename || 
-                     "Package Name";
-
-  // Get package price
-  const packagePrice = product.price || 
-                      product.packageDetails?.price || 
-                      packageData?.package?.price || 
-                      0;
-
-  // Get package image
-  const packageImage = product.image || 
-                      product.packageDetails?.image || 
-                      packageData?.package?.image || 
-                      "";
 
   return (
     <div
@@ -220,7 +193,7 @@ const QuickViewModal = () => {
                         key={index}
                       >
                         <img
-                          src={`${BASE_URL}/images/${prod.coverimage || prod.image}`}
+                          src={`${BASE_URL}/images/${prod.coverimage}`}
                           alt="thumbnail"
                           width={61}
                           height={61}
@@ -233,7 +206,7 @@ const QuickViewModal = () => {
                       className={`flex items-center justify-center w-20 h-20 overflow-hidden rounded-lg bg-gray-1 ease-out duration-200 hover:border-2 hover:border-blue`}
                     >
                       <img
-                        src={`${BASE_URL}/images/${packageImage}`}
+                        src={`${BASE_URL}/images/${product.image}`}
                         alt="thumbnail"
                         width={61}
                         height={61}
@@ -246,7 +219,7 @@ const QuickViewModal = () => {
                 <div className="relative z-1 overflow-hidden flex items-center justify-center w-full sm:min-h-[508px] rounded-lg border border-gray-3">
                   <div>
                     <img
-                      src={`${BASE_URL}/images/${packageImage}`}
+                      src={`${BASE_URL}/images/${product.image}`}
                       alt="products-details"
                       width={400}
                       height={400}
@@ -258,7 +231,7 @@ const QuickViewModal = () => {
 
             <div className="max-w-[445px] w-full">
               <h3 className="font-semibold text-xl xl:text-heading-5 text-dark mb-4">
-                {packageName}
+                {product.packagename}
               </h3>
 
               <div className="mb-6">
@@ -269,32 +242,28 @@ const QuickViewModal = () => {
                 {error && <div className="text-red-500">{error}</div>}
 
                 {!loading && !error && (
-                  <div>
+                  <ul
+                    className="list-disc pl-5 mt-2 text-dark-700"
+                    style={{ color: "black" }}
+                  >
                     {packageProducts.length > 0 ? (
-                      <div>
-                        <h4 className="font-medium text-dark mb-2">Package includes:</h4>
-                        <ul className="list-disc pl-5 mt-2 text-dark-700" style={{ color: "black" }}>
-                          {packageProducts.map((prod, index) => (
-                            <li key={prod._id || index} className="mb-2">
-                              <strong>{prod.title}</strong>
-                              {prod.about && (
-                                <p className="text-gray-700 text-sm mt-1" style={{ color: "gray" }}>
-                                  {prod.about}
-                                </p>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                      packageProducts.map((prod, index) => (
+                        <>
+                          <li key={prod._id || index} className="mb-1">
+                            {prod.title}
+                          </li>
+                          <p
+                            className="text-gray-700"
+                            style={{ color: "gray" }}
+                          >
+                            {prod.about}
+                          </p>
+                        </>
+                      ))
                     ) : (
-                      <div>
-                        <h4 className="font-medium text-dark mb-2">Package Details:</h4>
-                        <p className="text-gray-700">
-                          This is a comprehensive package. Contact us for detailed information about included services.
-                        </p>
-                      </div>
+                      <li>No products available</li>
                     )}
-                  </div>
+                  </ul>
                 )}
               </div>
 
@@ -306,7 +275,7 @@ const QuickViewModal = () => {
 
                   <span className="flex items-center gap-2">
                     <span className="font-semibold text-dark text-xl xl:text-heading-4">
-                      ₹{packagePrice}
+                      ₹{product.price}
                     </span>
                   </span>
                 </div>

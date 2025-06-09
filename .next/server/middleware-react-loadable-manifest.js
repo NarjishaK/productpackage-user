@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST='{"components/Cart/index.tsx -> @/redux/features/cart-slice":{"id":4539,"files":[]}}';
