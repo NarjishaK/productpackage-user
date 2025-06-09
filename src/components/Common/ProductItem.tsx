@@ -11,6 +11,7 @@ import { AppDispatch } from "@/redux/store";
 import Link from "next/link";
 import { BASE_URL } from "@/Helper/handleapi";
 
+
 const ProductItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
   const { refreshCart } = useCartModalContext(); // Add this line

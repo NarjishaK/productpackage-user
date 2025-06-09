@@ -10,7 +10,7 @@ import Link from "next/link";
 import { BASE_URL } from "@/Helper/handleapi";
 
 
-const SingleItem = ({ item }: { item: Product, }) => {
+const SingleItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
   const [isCustomer, setIsCustomer] = useState(false);
