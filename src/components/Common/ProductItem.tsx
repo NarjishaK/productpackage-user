@@ -40,8 +40,6 @@ const ProductItem = ({ item }: { item: Product }) => {
   };
 
   // add to cart
-// In ProductItem.tsx - Modified handleAddToCart function only
-
 const handleAddToCart = async () => {
   if (isCustomer && customerId) {
     try {
