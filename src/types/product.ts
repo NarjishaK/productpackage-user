@@ -7,6 +7,7 @@ export type Product = {
   _id: string;
   image: string;
   packagename: string;
+  
   imgs?: {
     thumbnails: string[];
     previews: string[];
@@ -15,5 +16,8 @@ export type Product = {
     packagename?: string;
     price?: number;
     image?: string;
+    isActive?: boolean;
+    fromDate?: string;
+    toDate?: string;
   };
 };
