@@ -29,7 +29,7 @@ const SingleItem = ({ item, removeItemFromCart }) => {
     <div className="flex items-center justify-between gap-5">
       <div className="w-full flex items-center gap-6">
         <div className="flex items-center justify-center rounded-[10px] bg-gray-3 max-w-[90px] w-full ">
-          <Link href={`/shop-details/${item.id || item?.packageId?._id}`}>
+          <Link href={`/shop-details/${item?.packageId?._id || item?._id}`}>
 <img
   src={`${BASE_URL}/images/${item?.image || item?.packageId?.image || "default.png"}`}
   alt="product"
@@ -41,9 +41,9 @@ const SingleItem = ({ item, removeItemFromCart }) => {
 
         <div>
           <h3 className="font-medium text-dark mb-1 ease-out duration-200 hover:text-blue">
-            <Link href={`/shop-details/${item.id || item?.packageId?._id}`}> {item.packagename} </Link>
+            <Link href={`/shop-details/${item.id || item?.packageId?._id}`}> {item.packagename || item?.packageId?.packagename} </Link>
           </h3>
-          <p className="text-custom-sm">Price: ₹{item.price}</p>
+          <p className="text-custom-sm">Price: ₹{item.price || item?.packageId?.price}</p>
         </div>
       </div>
 
