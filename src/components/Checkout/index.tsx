@@ -10,6 +10,7 @@ import Billing from "./Billing";
 import { fetchCartItems } from "@/Helper/handleapi";
 import { BASE_URL } from "@/Helper/handleapi";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 const EnhancedCheckout = () => {
 
@@ -207,6 +208,9 @@ const EnhancedCheckout = () => {
       };
 
       console.log('Creating order with data:', orderData);
+       await axios.post(`${BASE_URL}/notification/create`, {
+      message1: `Creating new order by customer : ${orderData.billingDetails.firstName}`,
+    });   
 
       // Create order
       const result = await createOrder(orderData);
