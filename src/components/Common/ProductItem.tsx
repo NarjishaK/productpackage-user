@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
-import { useCartModalContext } from "@/app/context/CartSidebarModalContext"; // Add this import
+import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import { updateQuickView } from "@/redux/features/quickView-slice";
 import { addItemToCart } from "@/redux/features/cart-slice";
 import { updateproductDetails } from "@/redux/features/product-details";
@@ -11,22 +11,25 @@ import { AppDispatch } from "@/redux/store";
 import Link from "next/link";
 import { BASE_URL } from "@/Helper/handleapi";
 
-
 const ProductItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
-  const { refreshCart } = useCartModalContext(); // Add this line
+  const { refreshCart } = useCartModalContext();
   const dispatch = useDispatch<AppDispatch>();
   const [isCustomer, setIsCustomer] = useState(false);
   const [customerId, setCustomerId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if customer details exist in localStorage
     const customerDetailsStr = localStorage.getItem("customerDetails");
-    if (customerDetailsStr) {
+    const authToken = localStorage.getItem("token");
+    
+    if (customerDetailsStr && authToken) {
       try {
         const customerDetails = JSON.parse(customerDetailsStr);
         setIsCustomer(true);
         setCustomerId(customerDetails._id || customerDetails.id);
+        setToken(authToken);
       } catch (error) {
         console.error("Error parsing customer details:", error);
         setIsCustomer(false);
@@ -40,44 +43,48 @@ const ProductItem = ({ item }: { item: Product }) => {
   };
 
   // add to cart
-const handleAddToCart = async () => {
-  if (isCustomer && customerId) {
-    try {
-      // Make API call to add product to customer cart
-      const response = await fetch(`${BASE_URL}/customercart`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerId: customerId,
-          packageId: item._id,
-          quantity: 1,
-        }),
-      });
+  const handleAddToCart = async () => {
+    if (isCustomer && customerId && token) {
+      try {
+        // Make API call to add product to customer cart
+        const response = await fetch(`${BASE_URL}/customercart`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            customerId: customerId,
+            packageId: item._id,
+            quantity: 1,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to add to customer cart');
+        if (!response.ok) {
+          throw new Error('Failed to add to customer cart');
+        }
+
+        const result = await response.json();
+        console.log('Product added to customer cart successfully:', result);
+        
+        // Trigger cart refresh using custom event
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        
+        // Show success notification
+        // You can add toast notification here if needed
+        
+      } catch (error) {
+        console.error('Error adding to customer cart:', error);
+        // Fallback to guest cart in case of API failure
+        addToGuestCart();
       }
-
-      // Show success notification or feedback
-      console.log('Product added to customer cart successfully');
-      
-      // Trigger cart refresh using custom event
-      window.dispatchEvent(new CustomEvent('cartUpdated'));
-      
-    } catch (error) {
-      console.error('Error adding to customer cart:', error);
-      // Fallback to guest cart in case of API failure
+    } else {
+      // If no customer details, use guest cart
       addToGuestCart();
     }
-  } else {
-    // If no customer details, use guest cart
-    addToGuestCart();
-  }
-};
+  };
 
-  // Add to guest cart through Redux
+  // Add to guest cart through Redux (which will also save to localStorage)
   const addToGuestCart = () => {
     dispatch(
       addItemToCart({
@@ -85,6 +92,11 @@ const handleAddToCart = async () => {
         quantity: 1,
       })
     );
+    
+    console.log('Product added to guest cart:', item.packagename);
+    
+    // Trigger cart refresh using custom event
+    window.dispatchEvent(new CustomEvent('cartUpdated'));
   };
 
   const handleProductDetails = () => {
@@ -95,8 +107,8 @@ const handleAddToCart = async () => {
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] mb-4">
         <Link href={`/shop-details/${item._id}`}>
-        <img src={`${BASE_URL}/images/${item.image}`} alt="" />
-       </Link>
+          <img src={`${BASE_URL}/images/${item.image}`} alt={item.packagename} />
+        </Link>
         <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
           <button
             onClick={() => {
@@ -129,24 +141,20 @@ const handleAddToCart = async () => {
               />
             </svg>
           </button>
-
           <button
             onClick={() => handleAddToCart()}
             className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-blue text-white ease-out duration-200 hover:bg-blue-dark"
           >
             Book Now
           </button>
-
         </div>
       </div>
-
       <h3
         className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
         onClick={() => handleProductDetails()}
       >
         <Link href={`/shop-details/${item._id}`}> {item.packagename} </Link>
       </h3>
-
       <span className="flex items-center gap-2 font-medium text-lg">
         <span className="text-dark">₹{item.price}</span>
       </span>

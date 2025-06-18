@@ -3,7 +3,7 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import Link from "next/link";
 import React, { useState } from "react";
-import { loginCustomer } from "@/Helper/handleapi";
+import { loginCustomer, BASE_URL } from "@/Helper/handleapi";
 import Swal from "sweetalert2";
 
 const Signin = () => {
@@ -11,6 +11,65 @@ const Signin = () => {
     email: "",
     password: "",
   });
+
+  // Function to merge guest cart with customer cart
+  const mergeGuestCartWithCustomerCart = async (customerId, token) => {
+    try {
+      // Get guest cart from localStorage
+      const guestCartStr = localStorage.getItem('guestCart');
+      if (!guestCartStr) {
+        console.log('No guest cart found');
+        return;
+      }
+
+      const guestCart = JSON.parse(guestCartStr);
+      if (!guestCart.items || guestCart.items.length === 0) {
+        console.log('Guest cart is empty');
+        return;
+      }
+
+      console.log('Merging guest cart with customer cart:', guestCart.items);
+
+      // Send each guest cart item to customer cart
+      const mergePromises = guestCart.items.map(async (item) => {
+        try {
+          const response = await fetch(`${BASE_URL}/customercart`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              customerId: customerId,
+              packageId: item._id,
+              quantity: item.quantity,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error('Failed to merge item:', item.packagename);
+          } else {
+            console.log('Successfully merged item:', item.packagename);
+          }
+        } catch (error) {
+          console.error('Error merging item:', item.packagename, error);
+        }
+      });
+
+      // Wait for all merge operations to complete
+      await Promise.all(mergePromises);
+
+      // Clear guest cart after successful merge
+      localStorage.removeItem('guestCart');
+      console.log('Guest cart cleared after merge');
+
+      // Trigger cart update event
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+
+    } catch (error) {
+      console.error('Error merging guest cart:', error);
+    }
+  };
 
   // Login function
   const handleSubmit = async (e) => {
@@ -37,6 +96,13 @@ const Signin = () => {
           "customerDetails",
           JSON.stringify(response.customerDetails)
         );
+
+        // Merge guest cart with customer cart
+        await mergeGuestCartWithCustomerCart(
+          response.customerDetails._id || response.customerDetails.id,
+          response.token
+        );
+
         window.location.href = "/";
       } else if (response.message === "Your account is blocked") {
         Swal.fire({
