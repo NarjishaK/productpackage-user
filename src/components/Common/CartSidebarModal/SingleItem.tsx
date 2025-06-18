@@ -41,7 +41,7 @@ const SingleItem = ({ item, removeItemFromCart }) => {
 
         <div>
           <h3 className="font-medium text-dark mb-1 ease-out duration-200 hover:text-blue">
-            <Link href={`/shop-details/${item.id || item?.packageId?._id}`}> {item.packagename || item?.packageId?.packagename} </Link>
+            <Link href={`/shop-details/${item?.packageId?._id || item?._id}`}> {item.packagename || item?.packageId?.packagename} </Link>
           </h3>
           <p className="text-custom-sm">Price: ₹{item.price || item?.packageId?.price}</p>
         </div>
